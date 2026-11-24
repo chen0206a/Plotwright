@@ -2,7 +2,7 @@
 
 面向 AI / 机器学习与科研工作者的本地优先科研绘图工作台，从原始实验数据到可复现的论文插图。
 
-[下载 Windows 便携版](https://github.com/chen0206a/Plotwright/releases/latest) · [官网介绍](https://chen0206a.github.io/Plotwright/) · [绘图示例](https://chen0206a.github.io/Plotwright/examples/) · [使用指南](docs/GUIDE.md)
+[下载 Windows 便携版](https://github.com/chen0206a/Plotwright/releases/latest) · [官网介绍](https://plotwright.cn) · [绘图示例](https://plotwright.cn/examples/) · [使用指南](docs/GUIDE.md)
 
 ![Plotwright：从实验数据到论文插图](docs/media/social-preview.png)
 
