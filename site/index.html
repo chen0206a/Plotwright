@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>从实验数据到论文插图 · Plotwright</title>
+<meta name="description" content="本地优先的科研绘图工作台。每张图，皆可溯源。">
+<meta property="og:title" content="从实验数据到论文插图 · Plotwright">
+<meta property="og:image" content="https://raw.githubusercontent.com/chen0206a/Plotwright/main/docs/media/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:description" content="本地科研绘图工作台：11 类论文数据图、24 套矢量机制图、矢量 PDF 与 .drawio 导出。">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<style>
+:root{
+  --ink:#050608;
+  --silver:#f5f5f7;
+  --silver-2:#a8adb8;
+  --silver-3:#8c95a6;
+  --paper:#f5f5f7;
+  --sheet:#ffffff;
+  --text:#1d1d1f;
+  --muted:#6e6e73;
+  --rule:rgba(29,29,31,.09);
+  --rule-dark:rgba(245,245,247,.11);
+  --blue:#2f5fa8;
+  --verm:#d9622b;
+  --plum:#a63f74;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","IBM Plex Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Consolas,monospace;
+  --ease:cubic-bezier(.22,.68,.18,1);
+  --pad:clamp(20px,5vw,76px);
+  --wrap:1340px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto}
+body{margin:0;font-family:var(--sans);font-size:18px;line-height:1.6;color:var(--text);background:var(--paper);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
+.stage :focus-visible,.showcase :focus-visible,.cta-sec :focus-visible,.bento-dark :focus-visible{outline-color:#9db8f0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+
+/* ---------- Navigation ---------- */
+.nav{position:fixed;inset:0 0 auto;z-index:30;height:60px;display:flex;align-items:center;gap:28px;padding:0 var(--pad);color:var(--silver);transition:color .35s var(--ease),background-color .35s var(--ease),border-color .35s var(--ease);border-bottom:1px solid transparent}
+.nav.dark-glass{color:var(--silver);background:rgba(7,8,12,.72);border-bottom-color:rgba(245,245,247,.08);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px)}
+.nav.light{color:var(--text);background:rgba(245,245,247,.84);border-bottom-color:rgba(29,29,31,.07);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px)}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;font:600 16px/1 var(--sans);letter-spacing:-.015em}
+.brand svg{width:21px;height:21px}
+.nav nav{display:flex;gap:26px;margin-left:12px}
+.nav nav a{font-size:14px;text-decoration:none;opacity:.76;transition:opacity .2s}
+.nav nav a:hover{opacity:1}
+.nav-end{margin-left:auto;display:flex;align-items:center;gap:16px}
+.nav-end .gh{font-size:14px;text-decoration:none;opacity:.76;transition:opacity .2s}
+.nav-end .gh:hover{opacity:1}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 28px;border-radius:999px;font:500 16px/1 var(--sans);text-decoration:none;white-space:nowrap;transition:background-color .2s,border-color .2s,color .2s,transform .2s var(--ease)}
+.btn:active{transform:scale(.98)}
+.btn-silver{background:linear-gradient(180deg,#ffffff,#e4e7ee);color:#0b0d11;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 1px 0 rgba(0,0,0,.35),0 14px 36px -14px rgba(175,195,235,.42)}
+.btn-silver:hover{background:linear-gradient(180deg,#ffffff,#eef0f5)}
+.btn-ghost{border:1px solid rgba(245,245,247,.26);color:var(--silver);background:rgba(245,245,247,.04)}
+.btn-ghost:hover{border-color:rgba(245,245,247,.52);background:rgba(245,245,247,.1)}
+.btn-sm{height:32px;padding:0 16px;border-radius:999px;font-size:13px}
+.nav .btn-sm{background:rgba(245,245,247,.12);border:1px solid rgba(245,245,247,.2);color:inherit}
+.nav .btn-sm:hover{background:rgba(245,245,247,.22)}
+.nav.light .btn-sm{background:var(--text);border-color:var(--text);color:#fff}
+.nav.light .btn-sm:hover{background:#333336}
+
+/* ---------- Act 1: Hero -> Figure 1 ---------- */
+.stage{position:relative;height:230vh;background:var(--paper)}
+.stage-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.stage-ink,.stage-paper{position:absolute;inset:0}
+.stage-ink{background:radial-gradient(110% 85% at 50% 34%,#10131b 0%,#06070a 56%,#020304 100%)}
+.stage-paper{background:radial-gradient(90% 70% at 25% 30%,#ffffff 0%,#f5f5f7 68%,#eff0f4 100%);opacity:0}
+.stage-sheet{position:absolute;background:var(--sheet);border-radius:18px;opacity:0;box-shadow:0 0 0 1px rgba(29,29,31,.065),0 6px 16px rgba(29,29,31,.04),0 34px 72px -28px rgba(29,29,31,.2)}
+.sheet-badge{position:absolute;top:18px;right:20px;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#f5f5f7;box-shadow:inset 0 0 0 1px rgba(29,29,31,.07);font-size:12.5px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;pointer-events:none}
+.sheet-badge i{display:block;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+#stage-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.hero{position:absolute;left:var(--pad);right:var(--pad);bottom:clamp(58px,11vh,122px);max-width:900px;z-index:3}
+.hero h1{font-weight:600;font-size:clamp(46px,6.8vw,98px);line-height:1.05;letter-spacing:-.028em;color:#f5f5f7}
+.hero h1 span{display:block;width:fit-content;background:linear-gradient(180deg,#ffffff 14%,#d9dfe9 68%,#9ea8ba 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{margin-top:22px;color:var(--silver-2);font-size:clamp(19px,1.7vw,24px);line-height:1.5;font-weight:400}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.hero-note{margin-top:18px;font-size:14px;color:var(--silver-3)}
+.scroll-hint{position:absolute;right:var(--pad);bottom:clamp(58px,11vh,122px);z-index:3;display:flex;flex-direction:column;align-items:center;gap:12px;font-size:12px;color:var(--silver-3);letter-spacing:.1em;writing-mode:vertical-rl}
+.scroll-hint i{display:block;width:1px;height:52px;background:linear-gradient(#8c95a6,transparent);transform-origin:top;animation:drip 2.4s var(--ease) infinite}
+@keyframes drip{0%{transform:scaleY(0);opacity:1}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+
+.stage-copy{position:absolute;z-index:3;opacity:0;display:flex;flex-direction:column;gap:26px}
+.stage-copy h2{font-size:clamp(36px,3.6vw,54px);font-weight:600;line-height:1.1;letter-spacing:-.028em;color:var(--text)}
+
+/* Minimal data provenance artifact */
+.prov-card{background:var(--sheet);border-radius:18px;padding:20px 22px;box-shadow:0 0 0 1px rgba(29,29,31,.07),0 20px 44px -26px rgba(29,29,31,.16)}
+.prov-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid var(--rule);font-size:13.5px}
+.prov-file{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:600;color:var(--text)}
+.prov-pill{padding:2px 9px;border-radius:999px;background:#eef2f8;color:var(--blue);font-family:var(--sans);font-size:12px;font-weight:600}
+.prov-hash{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.prov-rows{width:100%;border-collapse:collapse;margin-top:10px;font-size:14.5px;font-variant-numeric:tabular-nums}
+.prov-rows th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:4px 0 8px}
+.prov-rows th:last-child,.prov-rows td:last-child{text-align:right}
+.prov-rows td{padding:8px 0;border-top:1px solid rgba(29,29,31,.05);color:var(--text);font-weight:500}
+.sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:middle}
+.sw-verm{background:var(--verm)}.sw-plum{background:var(--plum)}.sw-blue{background:var(--blue)}
+
+/* intro motion */
+.js .hero h1 span,.js .hero-sub,.js .hero-cta,.js .hero-note{opacity:0;transform:translateY(20px);animation:rise 1.1s var(--ease) forwards}
+.js .hero h1 span:nth-child(1){animation-delay:.3s}
+.js .hero h1 span:nth-child(2){animation-delay:.46s}
+.js .hero-sub{animation-delay:.64s}
+.js .hero-cta{animation-delay:.76s}
+.js .hero-note{animation-delay:.86s}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ---------- Act 2: Obsidian Workspace Showcase ---------- */
+.showcase{position:relative;overflow:hidden;background:radial-gradient(85% 50% at 50% 0%,rgba(47,95,168,.18) 0%,rgba(5,6,8,0) 68%),#050608;color:var(--silver);padding:clamp(96px,12vh,152px) 0 clamp(96px,12vh,152px)}
+.showcase-head{text-align:center;max-width:900px;margin:0 auto}
+.showcase-head h2{font-size:clamp(40px,5.4vw,74px);font-weight:600;line-height:1.08;letter-spacing:-.028em;background:linear-gradient(180deg,#ffffff 16%,#cfd6e3 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+.seg-wrap{display:flex;justify-content:center;margin-top:36px}
+.seg{display:inline-flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:rgba(245,245,247,.07);border:1px solid rgba(245,245,247,.13);max-width:100%;overflow-x:auto}
+.seg button{padding:10px 24px;border-radius:999px;font-size:15px;font-weight:500;color:var(--silver-2);white-space:nowrap;transition:background-color .25s var(--ease),color .25s var(--ease)}
+.seg button:hover{color:var(--silver)}
+.seg button[aria-selected="true"]{background:var(--silver);color:#0b0d11;box-shadow:0 4px 16px -4px rgba(0,0,0,.55)}
+
+.device-shell{position:relative;max-width:1240px;margin:34px auto 0;padding:11px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.045) 38%,rgba(255,255,255,.02) 100%);box-shadow:0 0 0 1px rgba(255,255,255,.09),0 52px 120px -36px rgba(0,0,0,.94),0 20px 54px -26px rgba(47,95,168,.28);transform-origin:center top;transition:transform .8s var(--ease),opacity .8s var(--ease)}
+.device-shell::before{content:"";position:absolute;left:10%;right:10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);pointer-events:none}
+.js .device-shell:not(.in){opacity:.28;transform:translateY(28px) scale(.965)}
+.device-screen{position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:#0c0d10}
+.device-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transform:scale(1.012);transition:opacity .48s var(--ease),transform .6s var(--ease);pointer-events:none}
+.device-screen img.active{opacity:1;transform:none;pointer-events:auto}
+
+.stat-strip{max-width:1240px;margin:52px auto 0;padding-top:38px;border-top:1px solid var(--rule-dark);display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+.stat-num{font-size:clamp(38px,4.2vw,60px);font-weight:600;line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#ffffff 20%,#a9b3c4 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:16px;font-weight:500;color:var(--silver-2)}
+
+/* ---------- Shared Section Typography ---------- */
+.sec{padding:clamp(92px,11.5vh,144px) 0}
+.sec-white{background:var(--sheet)}
+.sec h2,.dstage h2{font-size:clamp(40px,5vw,70px);font-weight:600;line-height:1.08;letter-spacing:-.028em;color:var(--text)}
+
+/* ---------- Act 3: Pure Visual Traceability Cards ---------- */
+.trace-wrap{position:relative;margin-top:48px}
+.trace-bar{position:relative;height:2px;background:var(--rule);border-radius:2px;margin-bottom:26px;overflow:hidden}
+.trace-fill{position:absolute;inset:0;background:var(--text);transform-origin:left;transform:scaleX(1)}
+.js .trace-fill{transform:scaleX(0)}
+.trace{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.trace li{position:relative;background:var(--sheet);border-radius:24px;padding:24px 22px 26px;box-shadow:0 0 0 1px rgba(29,29,31,.055),0 16px 38px -28px rgba(29,29,31,.16);display:flex;flex-direction:column;transition:transform .35s var(--ease),box-shadow .35s var(--ease),opacity .55s var(--ease)}
+.trace li:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(29,29,31,.09),0 24px 46px -26px rgba(29,29,31,.22)}
+.js .trace li{opacity:.45}
+.js .trace li.on{opacity:1}
+.step-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.step-num{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.step-dot{width:9px;height:9px;border-radius:50%;background:#cfd4dc;transition:background-color .4s var(--ease),transform .4s var(--ease)}
+.trace li.on .step-dot{background:var(--text);transform:scale(1.15)}
+.vig{display:block;width:100%;height:auto;margin-bottom:22px;border-radius:14px;background:#fafbfc;box-shadow:inset 0 0 0 1px rgba(29,29,31,.05)}
+.trace h3{font-size:22px;font-weight:600;letter-spacing:-.018em;color:var(--text)}
+
+/* ---------- Act 4: 11 Chart Types + Live Style Studio ---------- */
+.charts-grid{margin-top:48px;display:grid;grid-template-columns:minmax(0,5.2fr) minmax(0,6.8fr);gap:28px;align-items:stretch}
+.style-studio{background:#f5f5f7;border-radius:26px;padding:28px;box-shadow:inset 0 0 0 1px rgba(29,29,31,.06);display:flex;flex-direction:column;justify-content:space-between;gap:22px}
+.studio-top{display:flex;align-items:center;justify-content:center}
+.preset-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(29,29,31,.06)}
+.preset-tabs button{padding:8px 18px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted);transition:background-color .2s,color .2s}
+.preset-tabs button[aria-selected="true"]{background:var(--sheet);color:var(--text);box-shadow:0 2px 10px -2px rgba(29,29,31,.16)}
+.studio-paper{background:var(--sheet);border-radius:16px;padding:20px 20px 16px;box-shadow:0 0 0 1px rgba(29,29,31,.06),0 16px 36px -22px rgba(29,29,31,.18)}
+.studio-paper svg{display:block;width:100%;height:auto}
+.caliper{background:var(--sheet);border-radius:16px;padding:18px 20px;box-shadow:0 0 0 1px rgba(29,29,31,.06)}
+.ruler{display:grid;gap:10px;width:100%}
+.rl{display:grid;grid-template-columns:minmax(0,1fr) 56px;align-items:center;gap:14px}
+.rl-track{position:relative;height:8px;border-radius:4px;background:rgba(29,29,31,.06);overflow:hidden}
+.rl i{display:block;height:100%;border-radius:4px;background:var(--text);transform-origin:left center}
+.rl:nth-child(1) i{width:48.9%}
+.rl:nth-child(2) i{width:100%;background:#9aa1ad}
+.rl em{font-style:normal;font-size:13.5px;font-weight:600;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+
+.type-panel{display:flex;flex-direction:column;justify-content:space-between}
+.type-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);column-gap:32px;border-top:1px solid var(--rule)}
+.type-list li{display:grid;grid-template-columns:56px minmax(0,1fr);align-items:center;gap:16px;padding:16px 8px;border-bottom:1px solid var(--rule);font-size:20px;border-radius:10px;transition:background-color .2s}
+.type-list li:hover{background:#f7f8fa}
+.type-list li b{font-weight:500;letter-spacing:-.01em}
+.glyph{display:block;width:56px;height:32px;overflow:hidden}
+.format-bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.fmt-pill{padding:9px 16px;border-radius:999px;background:#f5f5f7;font-size:14px;font-weight:600;color:var(--text)}
+
+/* ---------- Act 5: Mechanism Diagram Infinite Zoom ---------- */
+.dstage{position:relative;height:180vh;background:var(--paper)}
+.dpin{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;overflow:hidden}
+.dgrid{width:100%;display:grid;grid-template-columns:minmax(0,4.2fr) minmax(0,8.8fr);gap:clamp(32px,5vw,76px);align-items:center}
+.dsheet{position:relative;aspect-ratio:180/110;background:var(--sheet);border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px rgba(29,29,31,.065),0 6px 16px rgba(29,29,31,.04),0 34px 72px -28px rgba(29,29,31,.22)}
+.dzoom{position:absolute;inset:0;transform-origin:0 0}
+.dzoom svg{display:block;width:100%;height:100%}
+.zoom-read{margin-top:28px;display:flex;align-items:baseline;gap:14px}
+.zoom-read b{font:600 64px/1 var(--sans);color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+.d-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:32px}
+.d-chip{background:var(--sheet);border-radius:16px;padding:16px 14px;text-align:center;box-shadow:0 0 0 1px rgba(29,29,31,.06)}
+.d-chip strong{display:block;font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.d-chip span{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+
+/* ---------- Act 6: Interactive Drawing Assistant ---------- */
+.asst{display:grid;grid-template-columns:minmax(0,5.2fr) minmax(0,6.3fr);gap:clamp(36px,5.5vw,88px);align-items:center}
+.asst h2{font-size:clamp(38px,4.4vw,64px)}
+.asst-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.asst-pills span{padding:10px 18px;border-radius:999px;background:#f5f5f7;font-size:15px;font-weight:500;color:var(--text)}
+
+.demo{position:relative;border-radius:24px;background:#f2f3f6;box-shadow:0 0 0 1px rgba(29,29,31,.07),0 36px 80px -32px rgba(29,29,31,.26);padding:20px;user-select:none}
+.demo-bar{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 14px;font-size:13.5px;color:var(--muted)}
+.demo-bar b{color:var(--text);font-weight:600}
+.demo-fig{position:relative;background:var(--sheet);border-radius:14px;box-shadow:0 0 0 1px rgba(29,29,31,.06)}
+.demo-fig svg{display:block;width:100%;height:auto}
+.demo svg .lg{transition:transform .9s var(--ease)}
+.demo svg .tgt{opacity:0;transition:opacity .45s}
+.demo svg .thick{opacity:0;transition:opacity .65s var(--ease)}
+.demo svg .thin{transition:opacity .65s var(--ease)}
+.demo.proposed svg .tgt{opacity:1}
+.demo.applied svg .tgt{opacity:0}
+.demo.applied svg .lg{transform:translate(296px,112px)}
+.demo.applied svg .thick{opacity:1}
+.demo.applied svg .thin{opacity:0}
+.demo-zone{position:relative;height:152px;margin-top:14px}
+.demo-hint,.demo-card,.demo-done{position:absolute;inset:0}
+.demo-hint{display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);transition:opacity .35s}
+.demo.typing .demo-hint,.demo.proposed .demo-hint,.demo.applied .demo-hint{opacity:0;pointer-events:none}
+.demo-card{background:var(--sheet);border-radius:14px;box-shadow:0 0 0 1px rgba(29,29,31,.08),0 14px 32px -18px rgba(29,29,31,.24);padding:14px 16px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .45s var(--ease),transform .55s var(--ease)}
+.demo.proposed .demo-card{opacity:1;transform:none;pointer-events:auto}
+.demo.applied .demo-card{opacity:0;transform:translateY(-6px);pointer-events:none}
+.demo-card-h{display:flex;justify-content:space-between;font-size:13.5px}
+.demo-card-h b{font-weight:600}
+.demo-card-h span{color:var(--muted)}
+.demo-card ul{list-style:none;margin:9px 0 0;padding:0;font-size:13.5px}
+.demo-card li{display:flex;justify-content:space-between;padding:3px 0;color:var(--muted)}
+.demo-card li span:last-child{color:var(--text);font-variant-numeric:tabular-nums;font-weight:500}
+.demo-actions{display:flex;gap:8px;margin-top:11px}
+.demo-actions button{display:inline-flex;align-items:center;height:30px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:500;transition:transform .16s,background-color .2s}
+.b-apply{background:var(--text);color:#fff}
+.b-apply:hover{background:#343438}
+.demo.press .b-apply,.b-apply:active{transform:scale(.96)}
+.b-skip{box-shadow:inset 0 0 0 1px var(--rule);color:var(--muted);background:var(--sheet)}
+.b-skip:hover{color:var(--text)}
+.demo-done{display:flex;align-items:center;justify-content:center;gap:14px;font-size:15px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .45s var(--ease) .25s,transform .55s var(--ease) .25s}
+.demo.applied .demo-done{opacity:1;transform:none;pointer-events:auto}
+.demo-done .undo{padding:6px 14px;border-radius:999px;background:rgba(47,95,168,.1);color:var(--blue);font-size:13.5px;font-weight:600}
+.demo-done .undo:hover{background:rgba(47,95,168,.16)}
+.composer{display:flex;align-items:center;gap:8px;height:52px;margin-top:12px;padding:0 8px 0 16px;border-radius:14px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 0 0 1px rgba(29,29,31,.09),0 10px 24px -16px rgba(29,29,31,.24);font-size:15.5px}
+.composer .spark{flex:none;width:16px;height:16px;color:var(--muted)}
+.composer .ph{color:#8c919b}
+.composer .caret{width:1.5px;height:18px;background:var(--text);opacity:0}
+.demo.typing .caret{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:1}}
+.composer .send{margin-left:auto;width:34px;height:34px;border-radius:10px;background:#e3e5ea;display:grid;place-items:center;transition:background-color .2s}
+.demo.sent .send,.demo.proposed .send{background:var(--text)}
+.composer .send svg{width:14px;height:14px}
+
+/* ---------- Act 7: Pure Visual 12-Col Asymmetric Bento ---------- */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;margin-top:48px}
+.bento-card{background:var(--sheet);border-radius:26px;padding:36px 34px;box-shadow:0 0 0 1px rgba(29,29,31,.055),0 16px 40px -28px rgba(29,29,31,.16);display:flex;flex-direction:column;justify-content:space-between;gap:28px;overflow:hidden}
+.span-7{grid-column:span 7}
+.span-5{grid-column:span 5}
+.bento-dark{background:radial-gradient(90% 80% at 88% 10%,rgba(47,95,168,.24) 0%,rgba(12,14,20,0) 65%),#0b0d12;color:var(--silver);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 24px 56px -28px rgba(0,0,0,.55)}
+.bento-tint{background:linear-gradient(160deg,#ffffff 0%,#eef2f8 100%)}
+.bento-tag{display:inline-flex;align-self:flex-start;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;background:#f5f5f7;color:var(--muted);font-family:var(--mono)}
+.bento-dark .bento-tag{background:rgba(245,245,247,.09);color:#b7c9ec}
+.bento-card h3{font-size:clamp(26px,2.3vw,34px);font-weight:600;line-height:1.18;letter-spacing:-.024em;margin-top:14px}
+
+.local-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:10px;padding:20px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.lf-node{padding:14px 12px;border-radius:12px;background:rgba(255,255,255,.06);text-align:center}
+.lf-node b{display:block;color:var(--silver);font-weight:600;font-size:15px}
+.lf-node span{display:block;color:var(--silver-3);font-size:12px;margin-top:3px;font-family:var(--mono)}
+.lf-arr{color:var(--silver-3);font-size:16px}
+
+.giant-zero{font-size:clamp(68px,7vw,96px);font-weight:600;line-height:.9;letter-spacing:-.05em;color:var(--text)}
+.zero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.zero-pills span{padding:6px 12px;border-radius:999px;background:#f5f5f7;font-size:13.5px;font-weight:500;color:var(--muted)}
+
+.bound-list{display:grid;gap:10px}
+.bound-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:14px;background:#f5f5f7;font-size:15px}
+.bound-row b{font-weight:600;color:var(--text)}
+.bound-ok{font-size:13px;font-weight:600;color:var(--blue)}
+.bound-no{font-size:13px;font-weight:600;color:var(--verm)}
+
+.mcp-box{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-radius:16px;background:var(--sheet);box-shadow:0 0 0 1px rgba(29,29,31,.07)}
+.mcp-cmd{font-family:var(--mono);font-size:14.5px;color:var(--text);font-weight:600}
+.mcp-clients{display:flex;flex-wrap:wrap;gap:8px}
+.mcp-clients span{padding:5px 12px;border-radius:999px;background:#eef2f8;color:var(--blue);font-size:13px;font-weight:600}
+
+/* ---------- Act 8: Final Dark CTA ---------- */
+.cta-sec{position:relative;overflow:hidden;background:radial-gradient(120% 100% at 50% 25%,#11141d 0%,#06070a 60%,#020304 100%);color:var(--silver);padding:clamp(144px,21vh,230px) 0 clamp(120px,17vh,176px)}
+#cta-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cta-in{position:relative;text-align:center}
+.cta-in h2{font-weight:600;font-size:clamp(42px,5.8vw,80px);line-height:1.1;letter-spacing:-.028em;background:linear-gradient(180deg,#ffffff 12%,#cbd2df 70%,#9ca6b8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nb{display:inline-block}
+.cta-in .hero-cta{justify-content:center;margin-top:36px}
+.cta-in .hero-note{margin-top:20px}
+
+footer{background:#020304;color:var(--silver-3);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;padding-top:28px;padding-bottom:36px;border-top:1px solid var(--rule-dark)}
+footer .brand{color:var(--silver);font-size:14.5px}
+footer a{text-decoration:none;transition:color .2s}
+footer a:hover{color:var(--silver)}
+footer .end{margin-left:auto;display:flex;gap:24px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .trace{grid-template-columns:repeat(2,1fr)}
+  .charts-grid{grid-template-columns:1fr}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:980px){
+  .nav nav{gap:18px}
+  .nav nav .nav-wide{display:none}
+  .asst,.dgrid{grid-template-columns:1fr}
+  .span-7,.span-5{grid-column:span 12}
+  .dgrid{gap:28px}
+  .zoom-read{margin-top:18px}
+  .zoom-read b{font-size:44px}
+  .prov-card{padding:16px 18px}
+}
+@media (max-width:640px){
+  .nav nav{display:none}
+  .trace{grid-template-columns:1fr}
+  .d-chips{grid-template-columns:repeat(3,1fr)}
+  .local-flow{grid-template-columns:1fr;text-align:center}
+  .lf-arr{transform:rotate(90deg)}
+}
+@media (max-width:600px){
+  .type-list{grid-template-columns:1fr}
+  .scroll-hint{display:none}
+  .nav-end .gh{display:none}
+  .device-shell{padding:6px;border-radius:16px}
+  .device-screen{border-radius:10px}
+  .bento-card{padding:26px 22px}
+  .stat-strip{grid-template-columns:1fr 1fr;gap:22px}
+}
+
+/* ---------- Micro-motion ---------- */
+.anim .from{transition:transform 1s var(--ease),opacity .7s var(--ease);transition-delay:calc(var(--base,0s) + var(--d,0s))}
+.js .anim:not(.go) .from{transform:translate(var(--x,0),var(--y,0)) scale(var(--sx,var(--s,1)),var(--sy,var(--s,1)));opacity:var(--o,1)}
+.anim .sc{transform-box:fill-box;transform-origin:center}
+.anim .sb{transform-box:fill-box;transform-origin:50% 100%}
+.anim .sl{transform-box:fill-box;transform-origin:0 50%}
+.anim .cover{transform:translateX(52px);transition:transform 1.1s cubic-bezier(.45,.05,.25,1);transition-delay:calc(var(--base,0s) + var(--d,0s))}
+.js .anim:not(.go) .cover{transform:none}
+.anim .gone{transition:transform .6s var(--ease),opacity .5s var(--ease);transition-delay:calc(var(--base,0s) + var(--d,0s))}
+.anim.go .gone{opacity:0;transform:scale(.3)}
+.anim.reset *{transition:none!important}
+
+/* ---------- Reduced motion ---------- */
+.rm *,.rm *::before,.rm *::after{animation:none!important;transition:none!important}
+.rm .hero h1 span,.rm .hero-sub,.rm .hero-cta,.rm .hero-note,.rm .device-shell,.rm .trace li{opacity:1!important;transform:none!important}
+.rm .scroll-hint{display:none}
+.rm .stage{height:auto;background:var(--paper)}
+.rm .stage-pin{position:relative;height:auto;overflow:visible}
+.rm .stage-ink{position:relative;padding:clamp(112px,14vh,152px) var(--pad) clamp(76px,10vh,112px);background:radial-gradient(85% 65% at 75% 18%,rgba(47,95,168,.18) 0%,rgba(5,6,8,0) 65%),#050608}
+.rm .hero{position:relative;left:auto;right:auto;bottom:auto;max-width:var(--wrap);margin:0 auto}
+.rm .stage-paper{display:none}
+.rm .stage-fig-rm{position:relative;padding:clamp(72px,10vh,116px) 0;background:radial-gradient(90% 70% at 25% 30%,#ffffff 0%,#f5f5f7 68%,#eff0f4 100%)}
+.rm #stage-canvas{display:none}
+.rm .stage-sheet,.rm .stage-copy{position:static;opacity:1!important;transform:none!important;width:auto!important;height:auto!important;left:auto!important;top:auto!important}
+.rm .rm-fig-grid{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad);display:grid;grid-template-columns:minmax(0,7.5fr) minmax(0,4.8fr);gap:clamp(32px,5vw,68px);align-items:center}
+.rm .stage-sheet{position:relative;padding:12px}
+.rm .rm-fig-canvas{display:block;width:100%;height:auto;aspect-ratio:16/10}
+.rm .dstage{height:auto}
+.rm .dpin{position:relative;height:auto;padding:clamp(92px,11.5vh,144px) 0}
+@media (max-width:980px){
+  .rm .rm-fig-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Plotwright">
+    <svg viewBox="11 10 43 45" role="img" aria-label="Plotwright"><defs><mask id="pw-nav-m" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><circle cx="35.5" cy="22" r="5.2" fill="#000"/><circle cx="23" cy="44" r="3.3" fill="#000"/></mask></defs><path d="M14 44 C12 30 20 16 34 13 C46 11 54 18 51 27 C49 34 40 33 36 39 C32 46 34 52 26 53 C19 54 15 50 14 44 Z" fill="currentColor" mask="url(#pw-nav-m)"/><circle cx="35.5" cy="22" r="2.9" fill="#E4572E"/></svg>
+    <span class="brand-wordmark">Plotwright</span>
+  </a>
+  <nav aria-label="页面导航">
+    <a href="#workspace">工作台</a><a href="#trace">可追溯</a><a href="#charts">图表</a><a class="nav-wide" href="#diagrams">机制图</a><a href="#assistant">绘图助手</a><a class="nav-wide" href="#data">本地</a>
+  </nav>
+  <div class="nav-end">
+    <a class="gh" href="https://github.com/chen0206a/Plotwright">GitHub</a>
+    <a class="btn btn-sm" href="https://github.com/chen0206a/Plotwright/releases/latest">下载</a>
+  </div>
+</header>
+
+<main>
+<!-- Act 1: Hero -> Figure 1 -->
+<section class="stage" id="top" aria-label="Plotwright：让实验数据，自然成为论文图">
+  <div class="stage-pin">
+    <div class="stage-ink">
+      <div class="hero" id="hero">
+        <h1><span>让实验数据，</span><span>自然成为论文图。</span></h1>
+        <p class="hero-sub">本地科研绘图工作台。每张图，皆可溯源。</p>
+        <div class="hero-cta">
+          <a class="btn btn-silver" href="https://github.com/chen0206a/Plotwright/releases/latest">下载 Windows 版</a>
+          <a class="btn btn-ghost" href="./examples/index.html">查看绘图示例</a>
+        </div>
+        <p class="hero-note">下载已发布的 Windows 便携版 · 开发进度见 GitHub</p>
+      </div>
+    </div>
+    <div class="stage-paper" id="paper"></div>
+    <canvas id="stage-canvas" aria-hidden="true"></canvas>
+    <div class="scroll-hint" id="hint" aria-hidden="true"><span>向下滚动</span><i></i></div>
+    <div class="stage-fig-rm">
+      <div class="rm-fig-grid">
+        <div>
+          <div class="stage-sheet" id="sheet" aria-hidden="true">
+            <span class="sheet-badge"><i></i>88 mm · 8 pt</span>
+            <canvas class="rm-fig-canvas" id="rm-fig-canvas" hidden></canvas>
+          </div>
+        </div>
+        <div class="stage-copy" id="copy1">
+          <h2>每一条细线，<br>都是一次运行。</h2>
+          <div class="prov-card">
+            <div class="prov-head">
+              <span class="prov-file">runs.csv <span class="prov-pill">v2 只读</span></span>
+              <span class="prov-hash">sha256 · a8f3c2</span>
+            </div>
+            <table class="prov-rows" aria-label="图 1 对应的汇总数据">
+              <thead><tr><th>model</th><th>epoch</th><th>mean ± SEM</th></tr></thead>
+              <tbody>
+                <tr><td><i class="sw sw-verm"></i>mlp</td><td>12</td><td>0.931 ± 0.010</td></tr>
+                <tr><td><i class="sw sw-plum"></i>transformer</td><td>12</td><td>0.917 ± 0.010</td></tr>
+                <tr><td><i class="sw sw-blue"></i>linear</td><td>12</td><td>0.847 ± 0.010</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 2: Obsidian Workspace Showcase -->
+<section class="showcase" id="workspace" aria-label="Plotwright 真实工作台预览">
+  <div class="wrap">
+    <div class="showcase-head">
+      <h2>墨夜深色，纸感浅色。<br>为长时间作图而生。</h2>
+    </div>
+
+    <div class="seg-wrap">
+      <div class="seg" role="tablist" aria-label="切换工作台画面">
+        <button role="tab" aria-selected="true" data-shot="chart">数据图 · 墨夜</button>
+        <button role="tab" aria-selected="false" data-shot="diagram">机制图 · 浅色</button>
+        <button role="tab" aria-selected="false" data-shot="home">项目概览</button>
+      </div>
+    </div>
+
+    <div class="device-shell" id="deviceShell">
+      <div class="device-screen">
+        <img class="active" data-shot-img="chart" src="./assets/workspace-chart-dark.png" alt="Plotwright 墨夜深色主题下的数据图编辑器界面" width="2880" height="1800" fetchpriority="high" decoding="sync">
+        <img data-shot-img="diagram" src="./assets/workspace-diagram-light.png" alt="Plotwright 纸感浅色主题下的机制图编辑器界面" width="2880" height="1800" decoding="async">
+        <img data-shot-img="home" src="./assets/workspace-home-dark.png" alt="Plotwright 墨夜主题下的项目概览首页" width="2880" height="1800" decoding="async">
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-item"><span class="stat-num">2</span><span class="stat-label">墨夜 & 纸感双主题</span></div>
+      <div class="stat-item"><span class="stat-num">24</span><span class="stat-label">多领域机制图模板</span></div>
+      <div class="stat-item"><span class="stat-num">150+</span><span class="stat-label">可商用科研图标</span></div>
+      <div class="stat-item"><span class="stat-num">0</span><span class="stat-label">云端上传与账号</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 3: Pure Visual Traceability -->
+<section class="sec" id="trace">
+  <div class="wrap">
+    <h2>可复现，是默认值。</h2>
+    <div class="trace-wrap">
+      <div class="trace-bar" aria-hidden="true"><div class="trace-fill" id="traceFill"></div></div>
+      <ol class="trace" id="traceList">
+        <li><div class="step-top"><span class="step-num">01</span><span class="step-dot"></span></div><svg class="vig anim" viewBox="0 0 240 124" aria-hidden="true"><g class="from" style="--y:6px;--o:0;--d:0s"><rect x="52" y="10" width="150" height="86" rx="5" fill="#f5f6f8" stroke="#d3d7dd"/><text x="194" y="23" text-anchor="end" font-size="9" fill="#8a9099">v1</text></g><g class="from" style="--y:22px;--o:0;--d:0.18s"><rect x="38" y="26" width="150" height="88" rx="5" fill="#fff" stroke="#bfc5ce"/><line x1="38" x2="188" y1="45" y2="45" stroke="#e3e6ea"/><text x="58" y="39" font-size="9" font-weight="500" fill="#14171c">runs.csv</text><rect x="160" y="31" width="20" height="11" rx="5.5" fill="#14171c"/><text x="170" y="39.2" text-anchor="middle" font-size="7.5" fill="#fff">v2</text></g><g class="from sc" style="--s:0.3;--o:0;--d:1.05s"><rect x="44.5" y="34.5" width="8" height="6" rx="1.2" fill="#14171c"/><path d="M46.1 34.6v-1.5a2.4 2.4 0 0 1 4.8 0v1.5" fill="none" stroke="#14171c" stroke-width="1.1"/></g><g class="from" style="--x:-8px;--o:0;--d:0.5s"><rect x="48" y="53.0" width="24" height="4" rx="2" fill="#b8bfc9"/><rect x="80" y="53.0" width="28" height="4" rx="2" fill="#dfe3e8"/><rect x="116" y="53.0" width="22" height="4" rx="2" fill="#dfe3e8"/><rect x="148" y="53.0" width="26" height="4" rx="2" fill="#dfe3e8"/></g><g class="from" style="--x:-8px;--o:0;--d:0.58s"><rect x="48" y="64.5" width="24" height="4" rx="2" fill="#b8bfc9"/><rect x="80" y="64.5" width="28" height="4" rx="2" fill="#dfe3e8"/><rect x="116" y="64.5" width="22" height="4" rx="2" fill="#dfe3e8"/><rect x="148" y="64.5" width="26" height="4" rx="2" fill="#dfe3e8"/></g><g class="from" style="--x:-8px;--o:0;--d:0.66s"><rect x="48" y="76.0" width="24" height="4" rx="2" fill="#b8bfc9"/><rect x="80" y="76.0" width="28" height="4" rx="2" fill="#dfe3e8"/><rect x="116" y="76.0" width="22" height="4" rx="2" fill="#dfe3e8"/><rect x="148" y="76.0" width="26" height="4" rx="2" fill="#dfe3e8"/></g><g class="from" style="--x:-8px;--o:0;--d:0.74s"><rect x="48" y="87.5" width="24" height="4" rx="2" fill="#b8bfc9"/><rect x="80" y="87.5" width="28" height="4" rx="2" fill="#dfe3e8"/><rect x="116" y="87.5" width="22" height="4" rx="2" fill="#dfe3e8"/><rect x="148" y="87.5" width="26" height="4" rx="2" fill="#dfe3e8"/></g><g class="from" style="--x:-8px;--o:0;--d:0.82s"><rect x="48" y="99.0" width="24" height="4" rx="2" fill="#b8bfc9"/><rect x="80" y="99.0" width="28" height="4" rx="2" fill="#dfe3e8"/><rect x="116" y="99.0" width="22" height="4" rx="2" fill="#dfe3e8"/><rect x="148" y="99.0" width="26" height="4" rx="2" fill="#dfe3e8"/></g></svg><h3>原始数据只读</h3></li>
+        <li><div class="step-top"><span class="step-num">02</span><span class="step-dot"></span></div><svg class="vig anim" viewBox="0 0 240 124" aria-hidden="true"><line x1="28" x2="212" y1="104" y2="104" stroke="#d5d9df"/><circle class="from" cx="57" cy="56" r="3.2" fill="#2f5fa8" fill-opacity=".85" style="--x:141.6px;--y:25.2px;--d:0.08s"/><circle class="from" cx="69" cy="65" r="3.2" fill="#2f5fa8" fill-opacity=".85" style="--x:79.0px;--y:-26.9px;--d:0.11s"/><circle class="from" cx="62" cy="76" r="3.2" fill="#2f5fa8" fill-opacity=".85" style="--x:-28.4px;--y:-45.2px;--d:0.14s"/><circle class="from" cx="72" cy="83" r="3.2" fill="#2f5fa8" fill-opacity=".85" style="--x:44.2px;--y:-20.8px;--d:0.17s"/><circle class="from" cx="113" cy="32" r="3.2" fill="#d9622b" fill-opacity=".85" style="--x:-73.0px;--y:-14.2px;--d:0.2s"/><circle class="from" cx="125" cy="41" r="3.2" fill="#d9622b" fill-opacity=".85" style="--x:36.3px;--y:-25.6px;--d:0.23s"/><circle class="from" cx="118" cy="52" r="3.2" fill="#d9622b" fill-opacity=".85" style="--x:72.2px;--y:-30.7px;--d:0.26s"/><circle class="from" cx="128" cy="59" r="3.2" fill="#d9622b" fill-opacity=".85" style="--x:-14.0px;--y:-44.7px;--d:0.29s"/><circle class="from" cx="169" cy="46" r="3.2" fill="#a63f74" fill-opacity=".85" style="--x:-76.7px;--y:26.5px;--d:0.32s"/><circle class="from" cx="181" cy="55" r="3.2" fill="#a63f74" fill-opacity=".85" style="--x:17.3px;--y:31.4px;--d:0.35s"/><circle class="from" cx="174" cy="66" r="3.2" fill="#a63f74" fill-opacity=".85" style="--x:-90.3px;--y:21.8px;--d:0.38s"/><circle class="from" cx="184" cy="73" r="3.2" fill="#a63f74" fill-opacity=".85" style="--x:15.3px;--y:-23.3px;--d:0.41s"/><circle class="gone sc" cx="98" cy="26" r="3.2" fill="#b4bac3" style="--d:0.25s"/><circle class="gone sc" cx="150" cy="90" r="3.2" fill="#b4bac3" style="--d:0.25s"/><circle class="gone sc" cx="40" cy="84" r="3.2" fill="#b4bac3" style="--d:0.25s"/><g class="from sc" style="--sx:0;--o:0;--d:1.0s"><line x1="51" x2="77" y1="70" y2="70" stroke="#14171c" stroke-width="2"/><line x1="64" x2="64" y1="62" y2="78" stroke="#14171c" stroke-width="1.1"/><line x1="61" x2="67" y1="62" y2="62" stroke="#14171c" stroke-width="1.1"/><line x1="61" x2="67" y1="78" y2="78" stroke="#14171c" stroke-width="1.1"/></g><g class="from sc" style="--sx:0;--o:0;--d:1.1s"><line x1="107" x2="133" y1="46" y2="46" stroke="#14171c" stroke-width="2"/><line x1="120" x2="120" y1="38" y2="54" stroke="#14171c" stroke-width="1.1"/><line x1="117" x2="123" y1="38" y2="38" stroke="#14171c" stroke-width="1.1"/><line x1="117" x2="123" y1="54" y2="54" stroke="#14171c" stroke-width="1.1"/></g><g class="from sc" style="--sx:0;--o:0;--d:1.2s"><line x1="163" x2="189" y1="60" y2="60" stroke="#14171c" stroke-width="2"/><line x1="176" x2="176" y1="52" y2="68" stroke="#14171c" stroke-width="1.1"/><line x1="173" x2="179" y1="52" y2="52" stroke="#14171c" stroke-width="1.1"/><line x1="173" x2="179" y1="68" y2="68" stroke="#14171c" stroke-width="1.1"/></g><text class="from" x="64" y="117" text-anchor="middle" font-size="8.5" fill="#8a9099" style="--o:0;--d:0.9s">linear</text><text class="from" x="120" y="117" text-anchor="middle" font-size="8.5" fill="#8a9099" style="--o:0;--d:0.9s">mlp</text><text class="from" x="176" y="117" text-anchor="middle" font-size="8.5" fill="#8a9099" style="--o:0;--d:0.9s">transformer</text><text class="from" x="214" y="18" text-anchor="end" font-size="9" fill="#5b616b" style="--o:0;--d:1.35s">均值 ± 标准误</text></svg><h3>显式处理规则</h3></li>
+        <li><div class="step-top"><span class="step-num">03</span><span class="step-dot"></span></div><svg class="vig anim" viewBox="0 0 240 124" aria-hidden="true"><g class="from" style="--x:60px;--y:-20px;--o:0;--d:0.5s"><rect x="30" y="32" width="112" height="76" rx="4" fill="#fff" stroke="#d3d7dd"/><line x1="40" x2="132" y1="96" y2="96" stroke="#d5d9df"/><polyline points="40.0,84.0 56.0,74.0 72.0,67.0 88.0,63.0 104.0,60.0 120.0,58.0 132.0,57.0" fill="none" stroke="#b9bec6" stroke-width="1.1"/><text x="39" y="47" font-size="8.5" fill="#8a9099">v1</text></g><g class="from" style="--x:30px;--y:-10px;--o:0;--d:0.35s"><rect x="60" y="22" width="112" height="76" rx="4" fill="#fff" stroke="#d3d7dd"/><line x1="70" x2="162" y1="86" y2="86" stroke="#d5d9df"/><polyline points="70.0,74.0 86.0,64.0 102.0,57.0 118.0,53.0 134.0,50.0 150.0,48.0 162.0,47.0" fill="none" stroke="#a9afb8" stroke-width="1.1"/><polyline points="70.0,78.0 86.0,71.0 102.0,65.0 118.0,61.0 134.0,58.0 150.0,56.0 162.0,55.0" fill="none" stroke="#c9cdd3" stroke-width="1.1"/><text x="69" y="37" font-size="8.5" fill="#8a9099">v2</text></g><g class="from" style="--y:10px;--o:0;--d:0s"><rect x="90" y="12" width="112" height="76" rx="4" fill="#fff" stroke="#9aa3b1"/><line x1="100" x2="192" y1="76" y2="76" stroke="#d5d9df"/><polyline points="100.0,64.0 116.0,54.0 132.0,47.0 148.0,43.0 164.0,40.0 180.0,38.0 192.0,37.0" fill="none" stroke="#2f5fa8" stroke-width="1.5"/><polyline points="100.0,68.0 116.0,61.0 132.0,55.0 148.0,51.0 164.0,48.0 180.0,46.0 192.0,45.0" fill="none" stroke="#d9622b" stroke-width="1.5"/><rect x="98" y="19" width="20" height="11" rx="5.5" fill="#14171c"/><text x="108" y="27.2" text-anchor="middle" font-size="7.5" fill="#fff">v3</text></g><g class="from" style="--o:0;--d:1.15s"><path d="M150 104 C130 120 84 120 66 112" fill="none" stroke="#5b616b" stroke-width="1" stroke-dasharray="3 2.5"/><path d="M70 108.5 L65.5 112.2 L71 114.4" fill="none" stroke="#5b616b" stroke-width="1"/><text x="160" y="110" font-size="8.5" fill="#5b616b">恢复</text></g></svg><h3>独立图表版本</h3></li>
+        <li><div class="step-top"><span class="step-num">04</span><span class="step-dot"></span></div><svg class="vig anim" viewBox="0 0 240 124" aria-hidden="true"><rect x="60" y="6" width="120" height="112" rx="3" fill="#fff" stroke="#c9ced5"/><rect x="70" y="14" width="80" height="3.2" rx="1.6" fill="#c5cbd3"/><rect x="70" y="24" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="30" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="36" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="42" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="96" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="102" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="70" y="108" width="30" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="24" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="30" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="36" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="42" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="48" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="54" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="60" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="66" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="72" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="78" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="84" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="90" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="96" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="102" width="46" height="2.2" rx="1.1" fill="#e3e6ea"/><rect x="124" y="108" width="26" height="2.2" rx="1.1" fill="#e3e6ea"/><g class="from sc" style="--y:-34px;--s:1.7;--o:0;--d:0.15s"><rect x="70" y="48" width="46" height="28" rx="1" fill="#f6f8fb" stroke="#2f5fa8" stroke-width=".8"/><polyline points="73.0,72.0 79.4,66.5 85.8,63.0 92.2,60.8 98.6,59.4 105.0,58.5 111.4,58.0" fill="none" stroke="#d9622b" stroke-width="1.1"/><polyline points="73.0,73.0 79.4,69.5 85.8,67.1 92.2,65.5 98.6,64.4 105.0,63.6 111.4,63.1" fill="none" stroke="#2f5fa8" stroke-width="1.1"/></g><g class="from sc" style="--sx:0;--o:0;--d:0.95s"><line x1="70" x2="116" y1="82" y2="82" stroke="#14171c" stroke-width=".8"/><line x1="70" x2="70" y1="79.5" y2="84.5" stroke="#14171c" stroke-width=".8"/><line x1="116" x2="116" y1="79.5" y2="84.5" stroke="#14171c" stroke-width=".8"/></g><text class="from" x="93" y="92" text-anchor="middle" font-size="7.5" font-weight="500" fill="#14171c" style="--o:0;--d:1.15s">88 mm</text><g class="from sc" style="--s:0.4;--o:0;--d:1.3s"><rect x="166" y="0" width="28" height="14" rx="3" fill="#14171c"/><text x="180" y="10" text-anchor="middle" font-size="7.5" font-weight="600" fill="#fff">PDF</text></g></svg><h3>毫米矢量导出</h3></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- Act 4: 11 Chart Types + Interactive Style Studio -->
+<section class="sec sec-white" id="charts">
+  <div class="wrap">
+    <h2>11 类科研图，开箱即用。</h2>
+    <div class="charts-grid">
+      <div class="style-studio">
+        <div class="studio-top">
+          <div class="preset-tabs" role="tablist" aria-label="切换图表样式预设">
+            <button role="tab" aria-selected="true" data-preset="journal">期刊印刷</button>
+            <button role="tab" aria-selected="false" data-preset="emphasis">强调叙事</button>
+            <button role="tab" aria-selected="false" data-preset="clean">清晰学术</button>
+          </div>
+        </div>
+        <div class="studio-paper">
+          <svg id="presetSvg" viewBox="0 0 460 225" aria-label="实时样式预设预览图"></svg>
+        </div>
+        <div class="caliper">
+          <div class="ruler anim" aria-hidden="true">
+            <span class="rl"><span class="rl-track"><i class="from" style="--sx:0"></i></span><em>88 mm</em></span>
+            <span class="rl"><span class="rl-track"><i class="from" style="--sx:0;--d:.15s"></i></span><em>180 mm</em></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-panel">
+        <ul class="type-list">
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><polygon points="3.0,18.4 10.0,13.4 17.0,9.8 25.0,7.4 33.0,5.8 41.0,4.8 45.0,4.4 45.0,9.6 41.0,10.0 33.0,11.0 25.0,12.6 17.0,15.0 10.0,18.6 3.0,23.6" fill="#2f5fa8" fill-opacity=".18"/><polyline points="3.0,21.0 10.0,16.0 17.0,12.4 25.0,10.0 33.0,8.4 41.0,7.4 45.0,7.0" fill="none" stroke="#2f5fa8" stroke-width="1.6" stroke-linejoin="round"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/><rect class="cover" x="-1" y="0" width="50" height="28" fill="#fff" style="--d:0.0s"/></svg><b>折线</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><rect class="from sb" x="5" y="16" width="5" height="10" fill="#2f5fa8" style="--sy:0;--d:0.05s"/><line class="from" x1="7.5" x2="7.5" y1="13" y2="18" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.55s"/><rect class="from sb" x="11" y="13" width="5" height="13" fill="#d9622b" style="--sy:0;--d:0.09s"/><line class="from" x1="13.5" x2="13.5" y1="10" y2="15" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.55s"/><rect class="from sb" x="19" y="12" width="5" height="14" fill="#2f5fa8" style="--sy:0;--d:0.13s"/><line class="from" x1="21.5" x2="21.5" y1="9" y2="14" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.61s"/><rect class="from sb" x="25" y="9" width="5" height="17" fill="#d9622b" style="--sy:0;--d:0.17s"/><line class="from" x1="27.5" x2="27.5" y1="6" y2="11" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.61s"/><rect class="from sb" x="33" y="9" width="5" height="17" fill="#2f5fa8" style="--sy:0;--d:0.21s"/><line class="from" x1="35.5" x2="35.5" y1="6" y2="11" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.67s"/><rect class="from sb" x="39" y="5" width="5" height="21" fill="#d9622b" style="--sy:0;--d:0.25s"/><line class="from" x1="41.5" x2="41.5" y1="2" y2="7" stroke="#14171c" stroke-width=".9" style="--o:0;--d:0.67s"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/></svg><b>柱状</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><circle class="from sc" cx="6" cy="22.0" r="1.7" fill="#2f5fa8" style="--s:0;--d:0.0s"/><circle class="from sc" cx="10" cy="18.3" r="1.7" fill="#d9622b" style="--s:0;--d:0.04s"/><circle class="from sc" cx="14" cy="18.9" r="1.7" fill="#2f5fa8" style="--s:0;--d:0.08s"/><circle class="from sc" cx="18" cy="16.9" r="1.7" fill="#d9622b" style="--s:0;--d:0.12s"/><circle class="from sc" cx="22" cy="16.2" r="1.7" fill="#2f5fa8" style="--s:0;--d:0.16s"/><circle class="from sc" cx="26" cy="14.2" r="1.7" fill="#d9622b" style="--s:0;--d:0.2s"/><circle class="from sc" cx="30" cy="14.0" r="1.7" fill="#2f5fa8" style="--s:0;--d:0.24s"/><circle class="from sc" cx="34" cy="12.8" r="1.7" fill="#d9622b" style="--s:0;--d:0.28s"/><circle class="from sc" cx="38" cy="10.6" r="1.7" fill="#2f5fa8" style="--s:0;--d:0.32s"/><circle class="from sc" cx="42" cy="9.9" r="1.7" fill="#d9622b" style="--s:0;--d:0.36s"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/></svg><b>散点</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><rect class="from" x="3.0" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.9" style="--o:0;--d:0.0s"/><rect class="from" x="10.1" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.6" style="--o:0;--d:0.04s"/><rect class="from" x="17.2" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.3" style="--o:0;--d:0.08s"/><rect class="from" x="24.3" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.15" style="--o:0;--d:0.12s"/><rect class="from" x="31.4" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.1" style="--o:0;--d:0.16s"/><rect class="from" x="38.5" y="3.0" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.2" style="--o:0;--d:0.2s"/><rect class="from" x="3.0" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.6" style="--o:0;--d:0.04s"/><rect class="from" x="10.1" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.85" style="--o:0;--d:0.08s"/><rect class="from" x="17.2" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.5" style="--o:0;--d:0.12s"/><rect class="from" x="24.3" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.3" style="--o:0;--d:0.16s"/><rect class="from" x="31.4" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.15" style="--o:0;--d:0.2s"/><rect class="from" x="38.5" y="10.4" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.1" style="--o:0;--d:0.24s"/><rect class="from" x="3.0" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.3" style="--o:0;--d:0.08s"/><rect class="from" x="10.1" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.5" style="--o:0;--d:0.12s"/><rect class="from" x="17.2" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.8" style="--o:0;--d:0.16s"/><rect class="from" x="24.3" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.6" style="--o:0;--d:0.2s"/><rect class="from" x="31.4" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.35" style="--o:0;--d:0.24s"/><rect class="from" x="38.5" y="17.8" width="6.4" height="6.7" rx="1" fill="#2f5fa8" fill-opacity="0.2" style="--o:0;--d:0.28s"/></svg><b>热力图</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><g class="from sc" style="--sy:0;--d:0.0s"><line x1="10" x2="10" y1="5" y2="23" stroke="#2f5fa8" stroke-width="1"/><rect x="6" y="10" width="8" height="8" fill="#fff" stroke="#2f5fa8" stroke-width="1.2"/><rect x="6" y="10" width="8" height="8" fill="#2f5fa8" fill-opacity=".16"/><line x1="6" x2="14" y1="14" y2="14" stroke="#2f5fa8" stroke-width="1.4"/></g><g class="from sc" style="--sy:0;--d:0.1s"><line x1="24" x2="24" y1="3" y2="19" stroke="#d9622b" stroke-width="1"/><rect x="20" y="6" width="8" height="7" fill="#fff" stroke="#d9622b" stroke-width="1.2"/><rect x="20" y="6" width="8" height="7" fill="#d9622b" fill-opacity=".16"/><line x1="20" x2="28" y1="9" y2="9" stroke="#d9622b" stroke-width="1.4"/></g><g class="from sc" style="--sy:0;--d:0.2s"><line x1="38" x2="38" y1="8" y2="24" stroke="#a63f74" stroke-width="1"/><rect x="34" y="12" width="8" height="7" fill="#fff" stroke="#a63f74" stroke-width="1.2"/><rect x="34" y="12" width="8" height="7" fill="#a63f74" fill-opacity=".16"/><line x1="34" x2="42" y1="15.5" y2="15.5" stroke="#a63f74" stroke-width="1.4"/></g><circle class="from sc" cx="24" cy="24.4" r="1.2" fill="#d9622b" style="--s:0;--d:0.5s"/></svg><b>箱线</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><path class="from sc" d="M10.4,2.0 L10.4,3.1 L10.4,4.2 L10.5,5.3 L10.5,6.4 L10.7,7.5 L11.0,8.6 L11.5,9.7 L12.2,10.8 L13.1,11.9 L14.0,13.0 L14.9,14.1 L15.5,15.2 L15.6,16.3 L15.2,17.4 L14.4,18.5 L13.5,19.6 L12.5,20.7 L11.8,21.8 L11.2,22.9 L10.8,24.0 L9.2,24.0 L8.8,22.9 L8.2,21.8 L7.5,20.7 L6.5,19.6 L5.6,18.5 L4.8,17.4 L4.4,16.3 L4.5,15.2 L5.1,14.1 L6.0,13.0 L6.9,11.9 L7.8,10.8 L8.5,9.7 L9.0,8.6 L9.3,7.5 L9.5,6.4 L9.5,5.3 L9.6,4.2 L9.6,3.1 L9.6,2.0 Z" fill="#2f5fa8" fill-opacity=".22" stroke="#2f5fa8" stroke-width="1" style="--sx:0;--d:0.0s"/><path class="from sc" d="M24.5,2.0 L24.7,3.1 L25.1,4.2 L25.9,5.3 L27.1,6.4 L28.5,7.5 L29.7,8.6 L30.4,9.7 L30.2,10.8 L29.2,11.9 L27.8,13.0 L26.5,14.1 L25.5,15.2 L24.9,16.3 L24.6,17.4 L24.5,18.5 L24.4,19.6 L24.4,20.7 L24.4,21.8 L24.4,22.9 L24.4,24.0 L23.6,24.0 L23.6,22.9 L23.6,21.8 L23.6,20.7 L23.6,19.6 L23.5,18.5 L23.4,17.4 L23.1,16.3 L22.5,15.2 L21.5,14.1 L20.2,13.0 L18.8,11.9 L17.8,10.8 L17.6,9.7 L18.3,8.6 L19.5,7.5 L20.9,6.4 L22.1,5.3 L22.9,4.2 L23.3,3.1 L23.5,2.0 Z" fill="#d9622b" fill-opacity=".22" stroke="#d9622b" stroke-width="1" style="--sx:0;--d:0.1s"/><path class="from sc" d="M38.5,2.0 L38.6,3.1 L38.8,4.2 L39.0,5.3 L39.4,6.4 L39.8,7.5 L40.3,8.6 L40.9,9.7 L41.5,10.8 L42.0,11.9 L42.5,13.0 L42.7,14.1 L42.8,15.2 L42.7,16.3 L42.3,17.4 L41.8,18.5 L41.3,19.6 L40.7,20.7 L40.1,21.8 L39.6,22.9 L39.2,24.0 L36.8,24.0 L36.4,22.9 L35.9,21.8 L35.3,20.7 L34.7,19.6 L34.2,18.5 L33.7,17.4 L33.3,16.3 L33.2,15.2 L33.3,14.1 L33.5,13.0 L34.0,11.9 L34.5,10.8 L35.1,9.7 L35.7,8.6 L36.2,7.5 L36.6,6.4 L37.0,5.3 L37.2,4.2 L37.4,3.1 L37.5,2.0 Z" fill="#a63f74" fill-opacity=".22" stroke="#a63f74" stroke-width="1" style="--sx:0;--d:0.2s"/></svg><b>小提琴</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><rect class="from sb" x="3.0" y="23" width="4.3" height="3" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.0s"/><rect class="from sb" x="7.7" y="20" width="4.3" height="6" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.04s"/><rect class="from sb" x="12.4" y="16" width="4.3" height="10" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.08s"/><rect class="from sb" x="17.1" y="11" width="4.3" height="15" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.12s"/><rect class="from sb" x="21.8" y="6" width="4.3" height="20" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.16s"/><rect class="from sb" x="26.5" y="9" width="4.3" height="17" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.2s"/><rect class="from sb" x="31.2" y="14" width="4.3" height="12" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.24s"/><rect class="from sb" x="35.9" y="19" width="4.3" height="7" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.28s"/><rect class="from sb" x="40.6" y="22" width="4.3" height="4" fill="#2f5fa8" fill-opacity=".8" style="--sy:0;--d:0.32s"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/></svg><b>直方图</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><path d="M2 25 H8.4 V22.8 H12.2 V20.6 H15.2 V18.4 H22.0 V16.2 H22.9 V14.0 H26.3 V11.8 H26.7 V9.6 H28.3 V7.4 H29.8 V5.2 H33.6 V3.0 H46" fill="none" stroke="#2f5fa8" stroke-width="1.5" stroke-linejoin="round"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/><rect class="cover" x="-1" y="0" width="50" height="28" fill="#fff" style="--d:0.0s"/></svg><b>ECDF</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><line x1="3" y1="25" x2="45" y2="3" stroke="#c4c8cf" stroke-width="1" stroke-dasharray="2 2"/><polygon points="3.0,25.0 5.1,21.7 7.2,18.7 9.3,16.1 11.4,13.8 13.5,11.8 15.6,10.0 17.7,8.5 19.8,7.3 21.9,6.2 24.0,5.4 26.1,4.7 28.2,4.2 30.3,3.8 32.4,3.5 34.5,3.3 36.6,3.1 38.7,3.1 40.8,3.0 42.9,3.0 45.0,3.0 45.0,25.0 3.0,25.0" fill="#2f5fa8" fill-opacity=".12"/><polyline points="3.0,25.0 5.1,21.7 7.2,18.7 9.3,16.1 11.4,13.8 13.5,11.8 15.6,10.0 17.7,8.5 19.8,7.3 21.9,6.2 24.0,5.4 26.1,4.7 28.2,4.2 30.3,3.8 32.4,3.5 34.5,3.3 36.6,3.1 38.7,3.1 40.8,3.0 42.9,3.0 45.0,3.0" fill="none" stroke="#2f5fa8" stroke-width="1.6"/><rect class="cover" x="-1" y="0" width="50" height="28" fill="#fff" style="--d:0.0s"/></svg><b>ROC</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><polyline points="3.0,4.0 5.1,4.0 7.2,4.0 9.3,4.0 11.4,4.1 13.5,4.2 15.6,4.3 17.7,4.5 19.8,4.8 21.9,5.2 24.0,5.7 26.1,6.4 28.2,7.2 30.3,8.2 32.4,9.4 34.5,10.8 36.6,12.4 38.7,14.4 40.8,16.6 42.9,19.1 45.0,22.0" fill="none" stroke="#d9622b" stroke-width="1.6"/><line x1="2" y1="26.5" x2="46" y2="26.5" stroke="#c4c8cf" stroke-width="1"/><rect class="cover" x="-1" y="0" width="50" height="28" fill="#fff" style="--d:0.0s"/></svg><b>PR</b></li>
+          <li><svg class="glyph anim" viewBox="0 0 48 28" aria-hidden="true"><rect class="from" x="12.5" y="2.0" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.9" style="--o:0;--d:0.0s"/><rect class="from" x="20.3" y="2.0" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.15" style="--o:0;--d:0.05s"/><rect class="from" x="28.1" y="2.0" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.05" style="--o:0;--d:0.1s"/><rect class="from" x="12.5" y="9.8" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.2" style="--o:0;--d:0.15s"/><rect class="from" x="20.3" y="9.8" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.8" style="--o:0;--d:0.2s"/><rect class="from" x="28.1" y="9.8" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.12" style="--o:0;--d:0.25s"/><rect class="from" x="12.5" y="17.6" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.05" style="--o:0;--d:0.3s"/><rect class="from" x="20.3" y="17.6" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.25" style="--o:0;--d:0.35s"/><rect class="from" x="28.1" y="17.6" width="7.2" height="7.2" rx="1" fill="#2f5fa8" fill-opacity="0.85" style="--o:0;--d:0.4s"/></svg><b>混淆矩阵</b></li>
+        </ul>
+        <div class="format-bar">
+          <span class="fmt-pill">PDF · 嵌入字体</span>
+          <span class="fmt-pill">SVG</span>
+          <span class="fmt-pill">PNG</span>
+          <span class="fmt-pill">中英双语</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 5: Mechanism Diagrams Infinite Zoom -->
+<section class="dstage" id="diagrams">
+  <div class="dpin">
+    <div class="wrap dgrid">
+      <div>
+        <h2>放大，<br>依然清晰。</h2>
+        <p class="zoom-read" aria-hidden="true"><b id="zoomv">×1.0</b></p>
+        <div class="d-chips">
+          <div class="d-chip"><strong>24</strong><span>成品模板</span></div>
+          <div class="d-chip"><strong>150</strong><span>科研图标</span></div>
+          <div class="d-chip"><strong>.drawio</strong><span>矢量导出</span></div>
+        </div>
+      </div>
+      <div class="dsheet"><div class="dzoom" id="dzoom"><svg class="tf" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 110"><defs><linearGradient id="tf-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#edf3fc"/><stop offset="1" stop-color="#dce7f7"/></linearGradient><linearGradient id="tf-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d6dbb"/><stop offset="1" stop-color="#2b579c"/></linearGradient><linearGradient id="tf-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fcf5e8"/><stop offset="1" stop-color="#f3e5c8"/></linearGradient><linearGradient id="tf-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f7f9"/><stop offset="1" stop-color="#e9ecf0"/></linearGradient><linearGradient id="tf-plum" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#faf0f5"/><stop offset="1" stop-color="#f0dce7"/></linearGradient><linearGradient id="tf-verm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf0ea"/><stop offset="1" stop-color="#f7dccd"/></linearGradient><linearGradient id="tf-ink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3446"/><stop offset="1" stop-color="#1a202d"/></linearGradient><linearGradient id="tf-paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f7f8fa"/></linearGradient><marker id="tf-ah-ink" viewBox="0 0 6 6" refX="5.2" refY="3" markerWidth="1.9" markerHeight="1.9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0.3 0.6 L5.6 3 L0.3 5.4 Z" fill="#3a414d"/></marker><marker id="tf-ah-blue" viewBox="0 0 6 6" refX="5.2" refY="3" markerWidth="1.9" markerHeight="1.9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0.3 0.6 L5.6 3 L0.3 5.4 Z" fill="#2f5fa8"/></marker><marker id="tf-ah-verm" viewBox="0 0 6 6" refX="5.2" refY="3" markerWidth="1.9" markerHeight="1.9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0.3 0.6 L5.6 3 L0.3 5.4 Z" fill="#d9622b"/></marker><marker id="tf-ah-plum" viewBox="0 0 6 6" refX="5.2" refY="3" markerWidth="1.9" markerHeight="1.9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0.3 0.6 L5.6 3 L0.3 5.4 Z" fill="#a63f74"/></marker><filter id="tf-sh" x="-10%" y="-30%" width="120%" height="170%"><feDropShadow dx="0" dy="0.35" stdDeviation="0.4" flood-color="#14171c" flood-opacity="0.13"/></filter><filter id="tf-sh2" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.5" stdDeviation="0.7" flood-color="#14171c" flood-opacity="0.16"/></filter></defs><rect width="180" height="110" fill="#fff"/><path d="M60 62 L84 7 L84 104 L60 70 Z" fill="#2f5fa8" fill-opacity=".045"/><path d="M60 62 L84 7 M60 70 L84 104" stroke="#2f5fa8" stroke-opacity=".28" stroke-width=".22"/><rect x="6" y="22" width="62" height="52" rx="2.6" fill="#f6f8fb" stroke="#e0e4ea" stroke-width=".26"/><text x="9.4" y="26.6" font-size="2.1" font-weight="600" fill="#4a5260">编码器层</text><rect x="19.6" y="24.7" width="7.2" height="2.7" rx="1.35" fill="#1c2129"/><text x="23.2" y="26.08" text-anchor="middle" dominant-baseline="central" font-size="1.75" fill="#fff"><tspan>×</tspan><tspan font-style="italic"> N</tspan></text><circle cx="38" cy="72.2" r=".55" fill="#3a414d"/><path d="M38 72.2 H13.4 Q11.6 72.2 11.6 70.4 V57.3 Q11.6 55.5 13.4 55.5 H15.5" fill="none" stroke="#3a414d" stroke-width="0.28" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><circle cx="38" cy="50.5" r=".55" fill="#3a414d"/><path d="M38 50.5 H13.4 Q11.6 50.5 11.6 48.7 V35.3 Q11.6 33.5 13.4 33.5 H15.5" fill="none" stroke="#3a414d" stroke-width="0.28" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><path d="M38 77.2 V70.6" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><path d="M38 61.8 V58.6" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><path d="M38 52.8 V48.6" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><path d="M38 39.8 V36.6" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><path d="M38 30.8 V18.2" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><g filter="url(#tf-sh)"><rect x="16" y="62" width="44" height="8" rx="1.4" fill="url(#tf-solid)" stroke="#244b88" stroke-width=".28"/></g><rect x="16.5" y="62.28" width="43" height=".35" rx=".17" fill="#fff" fill-opacity="0.35"/><text x="38.0" y="66.0" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="600" fill="#ffffff">多头注意力</text><g filter="url(#tf-sh)"><rect x="16" y="53" width="44" height="5" rx="1.4" fill="url(#tf-slate)" stroke="#c6ccd5" stroke-width=".28"/></g><rect x="16.5" y="53.28" width="43" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="38.0" y="55.5" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#3a414d">残差与归一化</text><g filter="url(#tf-sh)"><rect x="16" y="40" width="44" height="8" rx="1.4" fill="url(#tf-amber)" stroke="#d6b874" stroke-width=".28"/></g><rect x="16.5" y="40.28" width="43" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="38.0" y="44.0" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="500" fill="#6a4e12">前馈网络</text><g filter="url(#tf-sh)"><rect x="16" y="31" width="44" height="5" rx="1.4" fill="url(#tf-slate)" stroke="#c6ccd5" stroke-width=".28"/></g><rect x="16.5" y="31.28" width="43" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="38.0" y="33.5" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#3a414d">残差与归一化</text><g filter="url(#tf-sh)"><rect x="14" y="10" width="48" height="7.6" rx="1.4" fill="url(#tf-ink)" stroke="#141923" stroke-width=".28"/></g><rect x="14.5" y="10.28" width="47" height=".35" rx=".17" fill="#fff" fill-opacity="0.35"/><text x="38.0" y="13.8" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="600" fill="#ffffff">上下文表示</text><path d="M38 86.6 V83.2" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><circle cx="38" cy="80.4" r="2.5" fill="#fff" stroke="#3a414d" stroke-width=".3" filter="url(#tf-sh)"/><path d="M36.6 80.4 H39.4 M38 79 V81.8" stroke="#3a414d" stroke-width=".3" stroke-linecap="round"/><circle cx="50.5" cy="80.4" r="2.5" fill="url(#tf-plum)" stroke="#cfa1bb" stroke-width=".3" filter="url(#tf-sh)"/><path d="M49 80.4 C49.5 78.9 50 78.9 50.5 80.4 S51.5 81.9 52 80.4" fill="none" stroke="#6c2a4d" stroke-width=".3" stroke-linecap="round"/><path d="M47.8 80.4 H41.1" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><text x="54.4" y="80.4" dominant-baseline="central" font-size="2.05" fill="#5b616b">位置编码</text><g filter="url(#tf-sh)"><rect x="14" y="87" width="48" height="6.6" rx="1.4" fill="url(#tf-plum)" stroke="#cfa1bb" stroke-width=".28"/></g><rect x="14.5" y="87.28" width="47" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="38.0" y="90.3" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="500" fill="#6c2a4d">词嵌入</text><g filter="url(#tf-sh)"><rect x="14.0" y="96.6" width="10.5" height="5.6" rx="1.2" fill="url(#tf-paper)" stroke="#d2d7de" stroke-width=".28"/></g><rect x="14.5" y="96.88" width="9.5" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="19.25" y="99.39999999999999" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#1c2129">猫</text><g filter="url(#tf-sh)"><rect x="26.5" y="96.6" width="10.5" height="5.6" rx="1.2" fill="url(#tf-paper)" stroke="#d2d7de" stroke-width=".28"/></g><rect x="27.0" y="96.88" width="9.5" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="31.75" y="99.39999999999999" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#1c2129">坐</text><g filter="url(#tf-sh)"><rect x="39.0" y="96.6" width="10.5" height="5.6" rx="1.2" fill="url(#tf-paper)" stroke="#d2d7de" stroke-width=".28"/></g><rect x="39.5" y="96.88" width="9.5" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="44.25" y="99.39999999999999" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#1c2129">在</text><g filter="url(#tf-sh)"><rect x="51.5" y="96.6" width="10.5" height="5.6" rx="1.2" fill="url(#tf-paper)" stroke="#d2d7de" stroke-width=".28"/></g><rect x="52.0" y="96.88" width="9.5" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="56.75" y="99.39999999999999" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="500" fill="#1c2129">垫上</text><text x="38" y="106.4" text-anchor="middle" font-size="1.95" fill="#5b616b">输入词元</text><rect x="84" y="6" width="90" height="98" rx="2.6" fill="#f8fafd" stroke="#d9e0eb" stroke-width=".26"/><circle cx="88.6" cy="11.6" r=".8" fill="#2f5fa8"/><text x="90.4" y="11.6" dominant-baseline="central" font-size="2.2" font-weight="600" fill="#1f3b6e">多头注意力</text><g filter="url(#tf-sh)"><rect x="93" y="19" width="34" height="6.6" rx="1.4" fill="url(#tf-blue)" stroke="#9db5dc" stroke-width=".28"/></g><rect x="93.5" y="19.28" width="33" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="110.0" y="22.3" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="500" fill="#1f3b6e">线性层</text><path d="M110 32.6 V26" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><g filter="url(#tf-sh)"><rect x="93" y="33" width="34" height="6.6" rx="1.4" fill="url(#tf-slate)" stroke="#c6ccd5" stroke-width=".28"/></g><rect x="93.5" y="33.28" width="33" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="110.0" y="36.3" text-anchor="middle" dominant-baseline="central" font-size="2.35" font-weight="500" fill="#3a414d">拼接</text><path d="M110 47.6 V40" fill="none" stroke="#3a414d" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-ink)"/><rect x="99.6" y="48.8" width="26" height="26" rx="1.3" fill="#fff" stroke="#cdd6e4" stroke-width=".24" opacity="0.55"/><rect x="98.3" y="50.1" width="26" height="26" rx="1.3" fill="#fff" stroke="#cdd6e4" stroke-width=".24" opacity="0.8"/><g filter="url(#tf-sh2)"><rect x="97" y="51.4" width="26" height="26" rx="1.3" fill="#fff" stroke="#b9c7de" stroke-width=".26"/></g><rect x="98.80" y="53.20" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.87"/><rect x="103.40" y="53.20" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.41"/><rect x="108.00" y="53.20" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.18"/><rect x="112.60" y="53.20" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.15"/><rect x="117.20" y="53.20" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.12"/><rect x="98.80" y="57.80" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.44"/><rect x="103.40" y="57.80" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.82"/><rect x="108.00" y="57.80" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.34"/><rect x="112.60" y="57.80" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.18"/><rect x="117.20" y="57.80" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.14"/><rect x="98.80" y="62.40" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.20"/><rect x="103.40" y="62.40" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.42"/><rect x="108.00" y="62.40" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.85"/><rect x="112.60" y="62.40" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.46"/><rect x="117.20" y="62.40" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.22"/><rect x="98.80" y="67.00" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.15"/><rect x="103.40" y="67.00" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.22"/><rect x="108.00" y="67.00" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.48"/><rect x="112.60" y="67.00" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.80"/><rect x="117.20" y="67.00" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.42"/><rect x="98.80" y="71.60" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.12"/><rect x="103.40" y="71.60" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.16"/><rect x="108.00" y="71.60" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.23"/><rect x="112.60" y="71.60" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.51"/><rect x="117.20" y="71.60" width="4.0" height="4.0" rx=".55" fill="#2f5fa8" fill-opacity="0.90"/><g filter="url(#tf-sh)"><rect x="94" y="86" width="12" height="7" rx="1.3" fill="url(#tf-blue)" stroke="#9db5dc" stroke-width=".28"/></g><rect x="94.5" y="86.28" width="11" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="100.0" y="89.5" text-anchor="middle" dominant-baseline="central" font-size="2.7" font-weight="500" fill="#1f3b6e" font-style="italic">Q</text><g filter="url(#tf-sh)"><rect x="110" y="86" width="12" height="7" rx="1.3" fill="url(#tf-verm)" stroke="#e2a687" stroke-width=".28"/></g><rect x="110.5" y="86.28" width="11" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="116.0" y="89.5" text-anchor="middle" dominant-baseline="central" font-size="2.7" font-weight="500" fill="#86381a" font-style="italic">K</text><g filter="url(#tf-sh)"><rect x="126" y="86" width="12" height="7" rx="1.3" fill="url(#tf-plum)" stroke="#cfa1bb" stroke-width=".28"/></g><rect x="126.5" y="86.28" width="11" height=".35" rx=".17" fill="#fff" fill-opacity="0.8"/><text x="132.0" y="89.5" text-anchor="middle" dominant-baseline="central" font-size="2.7" font-weight="500" fill="#6c2a4d" font-style="italic">V</text><path d="M100 85.4 C100 82 102.5 80.6 104 78.4" fill="none" stroke="#2f5fa8" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-blue)"/><path d="M116 85.4 C116 82 112.5 81 110.6 78.4" fill="none" stroke="#d9622b" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-verm)"/><path d="M132 85.4 C132 81.6 121 81.2 117.4 78.4" fill="none" stroke="#a63f74" stroke-width="0.32" stroke-linecap="round" marker-end="url(#tf-ah-plum)"/><text x="116" y="98.6" text-anchor="middle" font-size="2" fill="#5b616b">输入的线性投影</text><text x="129.6" y="56.8" font-size="2.3" font-weight="600" fill="#1c2129">缩放点积注意力</text><text x="129.6" y="62.9" font-size="2.45" fill="#1c2129">Attention(<tspan font-style="italic">Q</tspan>, <tspan font-style="italic">K</tspan>, <tspan font-style="italic">V</tspan>)</text><text x="141.6" y="69.75" text-anchor="end" font-size="2.45" fill="#1c2129">= softmax</text><path d="M142.54999999999998 65.60000000000001 Q141.54999999999998 68.9 142.54999999999998 72.2" fill="none" stroke="#1c2129" stroke-width=".2" stroke-linecap="round"/><path d="M150.25000000000003 65.60000000000001 Q151.25000000000003 68.9 150.25000000000003 72.2" fill="none" stroke="#1c2129" stroke-width=".2" stroke-linecap="round"/><text x="146.4" y="68.15" text-anchor="middle" font-size="2.45" fill="#1c2129"><tspan font-style="italic">QK</tspan><tspan font-size="1.6" dy="-1">T</tspan></text><line x1="143.3" x2="149.5" y1="68.9" y2="68.9" stroke="#1c2129" stroke-width=".2"/><path d="M143.65 71.4 L144.05 71.15 L144.75 72.80000000000001 L145.45000000000002 69.85000000000001 H148.65" fill="none" stroke="#1c2129" stroke-width=".2" stroke-linejoin="round" stroke-linecap="round"/><text x="145.85" y="72.35000000000001" font-size="2.45" fill="#1c2129"><tspan font-style="italic">d</tspan><tspan font-size="1.6" dy=".55" font-style="italic">k</tspan></text><text x="151.45000000000002" y="69.75" font-size="2.45" font-style="italic" fill="#1c2129">V</text><rect x="131.2" y="76.2" width="2.6" height="2.6" rx=".4" fill="#fff" stroke="#9db5dc" stroke-width=".2"/><rect x="130.6" y="76.8" width="2.6" height="2.6" rx=".4" fill="#fff" stroke="#9db5dc" stroke-width=".2"/><rect x="130" y="77.4" width="2.6" height="2.6" rx=".4" fill="#2f5fa8" fill-opacity=".85"/><text x="135.4" y="78.4" dominant-baseline="central" font-size="2.05" fill="#5b616b"><tspan font-style="italic">h</tspan> 个头并行，结果拼接</text></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 6: Interactive Drawing Assistant -->
+<section class="sec sec-white" id="assistant">
+  <div class="wrap asst">
+    <div>
+      <h2>说一句话，<br>先预览，再应用。</h2>
+      <div class="asst-pills">
+        <span>13 项受校验工具</span>
+        <span>不发送原始数据</span>
+        <span>一步撤销</span>
+      </div>
+    </div>
+    <div>
+      <div class="demo" id="demo" aria-label="绘图助手演示：把图例移到右下角并加粗 mlp 曲线">
+        <div class="demo-bar"><span><b>Figure 1</b>　v3</span><span>绘图助手</span></div>
+        <div class="demo-fig"><svg id="demoSvg" viewBox="0 0 520 250" aria-hidden="true"></svg></div>
+        <div class="demo-zone">
+          <p class="demo-hint">“图例放到右下角，mlp 加粗”</p>
+          <div class="demo-card">
+            <div class="demo-card-h"><b>建议修改</b><span>2 项</span></div>
+            <ul><li><span>图例位置</span><span>左上 → 右下</span></li><li><span>mlp 线宽</span><span>2.5 → 3.5</span></li></ul>
+            <div class="demo-actions">
+              <button type="button" class="b-apply" id="btnApply">应用这组调整</button>
+              <button type="button" class="b-skip" id="btnSkip">放弃</button>
+            </div>
+          </div>
+          <div class="demo-done"><span>已应用</span><button type="button" class="undo" id="btnUndo">一步撤销</button></div>
+        </div>
+        <div class="composer">
+          <svg class="spark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 1.8 9.6 6.4 14.2 8 9.6 9.6 8 14.2 6.4 9.6 1.8 8 6.4 6.4Z" stroke-linejoin="round"/></svg>
+          <span id="typed" class="ph">描述你想怎么改这张图</span><span class="caret"></span>
+          <button type="button" class="send" id="btnReplay" aria-label="重播演示"><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 7: Pure Visual Asymmetric Bento -->
+<section class="sec" id="data">
+  <div class="wrap">
+    <h2>数据，只留在你手里。</h2>
+    <div class="bento">
+      <div class="bento-card bento-dark span-7">
+        <div>
+          <span class="bento-tag">127.0.0.1</span>
+          <h3>全部本地运行</h3>
+        </div>
+        <div class="local-flow" aria-hidden="true">
+          <div class="lf-node"><b>原始数据</b><span>CSV / XLSX</span></div>
+          <span class="lf-arr">→</span>
+          <div class="lf-node"><b>本机引擎</b><span>H2 本地库</span></div>
+          <span class="lf-arr">→</span>
+          <div class="lf-node"><b>论文成图</b><span>PDF / .drawio</span></div>
+        </div>
+      </div>
+
+      <div class="bento-card span-5">
+        <div>
+          <span class="bento-tag">PORTABLE</span>
+          <h3>不需要账号</h3>
+        </div>
+        <div>
+          <div class="giant-zero" aria-hidden="true">0</div>
+          <div class="zero-pills"><span>0 注册</span><span>0 云同步</span><span>0 配置</span></div>
+        </div>
+      </div>
+
+      <div class="bento-card span-5">
+        <div>
+          <span class="bento-tag">PRIVACY</span>
+          <h3>助手脱敏边界</h3>
+        </div>
+        <div class="bound-list">
+          <div class="bound-row"><b>图表配置与字段摘要</b><span class="bound-ok">经同意</span></div>
+          <div class="bound-row"><b>原始实验数据行</b><span class="bound-no">绝不发送</span></div>
+        </div>
+      </div>
+
+      <div class="bento-card bento-tint span-7">
+        <div>
+          <span class="bento-tag">MCP · MIT</span>
+          <h3>开放本机 MCP 协同</h3>
+        </div>
+        <div class="mcp-box">
+          <span class="mcp-cmd">plotwright-mcp.cjs</span>
+          <div class="mcp-clients"><span>Claude Code</span><span>Codex</span><span>Cursor</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Act 8: Final Dark CTA -->
+<section class="cta-sec" id="download">
+  <canvas id="cta-canvas" aria-hidden="true"></canvas>
+  <div class="wrap cta-in">
+    <h2><span class="nb">下一张图，</span><span class="nb">从这里开始。</span></h2>
+    <div class="hero-cta">
+      <a class="btn btn-silver" href="https://github.com/chen0206a/Plotwright/releases/latest">下载 Windows 版</a>
+      <a class="btn btn-ghost" href="https://github.com/chen0206a/Plotwright">GitHub</a>
+    </div>
+    <p class="hero-note">下载已发布的 Windows 便携版 · 开发进度见 GitHub</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="brand brand-wordmark">Plotwright</span>
+    <span class="end"><a href="https://github.com/chen0206a/Plotwright/blob/main/docs/GUIDE.md">使用指南</a><a href="https://github.com/chen0206a/Plotwright">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const easeOut = (k) => 1 - Math.pow(1 - k, 3);
+const easeInOut = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+const root = document.documentElement;
+const mq = matchMedia("(prefers-reduced-motion: reduce)");
+let RM = mq.matches;
+root.classList.add("js");
+root.classList.toggle("rm", RM);
+
+const SERIES = [
+  { name: "linear", rgb: [47, 95, 168], mean: [.555, .64, .70, .745, .775, .795, .81, .825, .835, .836, .838, .847], sem: [.011, .011, .01, .01, .01, .009, .009, .009, .009, .009, .009, .01] },
+  { name: "mlp", rgb: [217, 98, 43], mean: [.625, .735, .80, .845, .88, .895, .905, .915, .922, .922, .924, .931], sem: [.012, .012, .011, .011, .01, .01, .009, .009, .009, .009, .009, .01] },
+  { name: "transformer", rgb: [166, 63, 116], mean: [.505, .615, .69, .75, .80, .835, .86, .88, .895, .902, .908, .917], sem: [.012, .012, .012, .011, .011, .01, .01, .01, .009, .009, .009, .01] },
+];
+const LAST = 11, Y0 = 0.48, Y1 = 0.96;
+function at(arr, e) {
+  e = clamp(e, 0, LAST);
+  const i = Math.min(LAST - 1, Math.floor(e)), f = e - i;
+  const p0 = arr[Math.max(0, i - 1)], p1 = arr[i], p2 = arr[i + 1], p3 = arr[Math.min(LAST, i + 2)];
+  return 0.5 * (2 * p1 + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f * f + (-p0 + 3 * p1 - 3 * p2 + p3) * f * f * f);
+}
+
+const BUNDLES = [
+  { dir: 1, n: 26, y: 0.0, amp: 0.12, f: 0.8, ph: 2.4, spread: [0.02, 0.1], tw: 1.6, twph: 0.2, rgb: [226, 232, 244], w: 1, series: 1, start: 0.12, dur: 1.45 },
+  { dir: -1, n: 20, y: 0.1, amp: 0.09, f: 0.7, ph: 0.9, spread: [0.015, 0.065], tw: 1.2, twph: 1.1, rgb: [236, 228, 216], w: 0.9, series: 2, start: 0.32, dur: 1.35 },
+  { dir: 1, n: 16, y: -0.11, amp: 0.07, f: 0.55, ph: 4.1, spread: [0.01, 0.045], tw: 1.0, twph: 2.0, rgb: [210, 220, 240], w: 0.8, series: 0, start: 0.5, dur: 1.5 },
+];
+
+function ribbonPoint(b, i, s, W, H, t, cy) {
+  const k = b.dir > 0 ? s : 1 - s;
+  const x = lerp(-60, W + 60, k);
+  const u = i / (b.n - 1) - 0.5;
+  const centre = cy + H * b.y + H * b.amp * Math.sin(TAU * b.f * k + b.ph + 0.22 * t);
+  const open = lerp(b.spread[0], b.spread[1], s);
+  const twist = Math.sin(Math.PI * b.tw * k + b.twph + 0.27 * t);
+  const wob = 2 * Math.sin(x / 130 + i * 0.41 + t * 0.8);
+  return [x, centre + u * H * open * 2 * twist + wob, k];
+}
+
+function flare(ctx, x, y, k, size) {
+  if (k <= 0) return;
+  const core = ctx.createRadialGradient(x, y, 0, x, y, size * 0.55);
+  core.addColorStop(0, `rgba(255,255,255,${0.9 * k})`);
+  core.addColorStop(0.25, `rgba(210,222,255,${0.35 * k})`);
+  core.addColorStop(1, "rgba(180,200,255,0)");
+  ctx.fillStyle = core; ctx.fillRect(x - size, y - size, size * 2, size * 2);
+  for (const [dx, dy, l] of [[1, 0, size * 1.6], [0, 1, size * 0.9]]) {
+    const g = ctx.createLinearGradient(x - dx * l, y - dy * l, x + dx * l, y + dy * l);
+    g.addColorStop(0, "rgba(220,230,255,0)");
+    g.addColorStop(0.5, `rgba(240,245,255,${0.7 * k})`);
+    g.addColorStop(1, "rgba(220,230,255,0)");
+    ctx.fillStyle = g;
+    if (dx) ctx.fillRect(x - l, y - 0.6, l * 2, 1.2); else ctx.fillRect(x - 0.6, y - l, 1.2, l * 2);
+  }
+}
+
+function drawStrands(ctx, W, H, cy, tA, tI, m) {
+  const c = m ? m.c : 0, q = m ? m.q : 0;
+  const dark = 1 - c;
+  if (dark > 0.02) {
+    ctx.globalCompositeOperation = "lighter";
+    for (let j = 0; j < 32; j++) {
+      const x = (hash(j) * W + tA * 9 * (hash(j + 5) - 0.5) + W) % W;
+      const y = hash(j + 99) * H + Math.sin(tA * 0.5 + j) * 10;
+      const a = (0.05 + 0.15 * hash(j + 3)) * dark * seg(tI, 0.1, 1);
+      ctx.fillStyle = `rgba(220,228,245,${a})`;
+      ctx.beginPath(); ctx.arc(x, y, 0.6 + 1.0 * hash(j + 11), 0, TAU); ctx.fill();
+    }
+  }
+  const S = 72;
+  BUNDLES.forEach((b, bi) => {
+    const reveal = RM ? 1 : easeOut(seg(tI, b.start, b.start + b.dur));
+    if (reveal <= 0) return;
+    const sr = SERIES[b.series];
+    const rgb = b.rgb.map((v, z) => Math.round(lerp(v, sr.rgb[z], c)));
+    const hs = RM ? -1 : ((tA * 0.11 + bi * 0.37) % 1.6) - 0.3;
+    ctx.globalCompositeOperation = c < 0.35 ? "lighter" : "source-over";
+    if (q < 1) for (let i = 0; i < b.n; i++) {
+      const u2 = (i / (b.n - 1) - 0.5) * 2, ua = Math.abs(u2);
+      const depth = 1 - ua * ua;
+      const h = hash(i * 7.3 + bi * 31);
+      let mx = 0, my = 0;
+      if (m) { const r = seg(m.p, 0.12 + 0.13 * h, 0.38 + 0.13 * h); mx = easeInOut(clamp(r * 1.3)); my = easeInOut(r); }
+      const own = reveal < 1 ? clamp(reveal - 0.05 * ua * ua) : 1;
+      const spreadK = lerp(2.6, 1, q);
+      const pts = [];
+      for (let j = 0; j <= S; j++) {
+        const s = Math.min(j / S, own);
+        const src = ribbonPoint(b, i, s, W, H, tA, cy);
+        let x = src[0], y = src[1];
+        if (m && (mx > 0 || my > 0)) {
+          const e = src[2] * LAST;
+          const sem = at(sr.sem, e);
+          const run = sem * 1.1 * (Math.sin(e * 0.85 + h * 20) * 0.55 + (hash(i + bi * 9 + 3) - 0.5)) * (1 - q);
+          const v = at(sr.mean, e) + spreadK * u2 * sem * 0.9 + run;
+          x = lerp(x, m.X(e), mx); y = lerp(y, m.Y(v), my);
+        }
+        pts.push(x, y);
+        if (s >= own) break;
+      }
+      if (pts.length < 4) continue;
+      const aDark = 0.07 + 0.3 * depth;
+      const aPaper = 0.16 + 0.12 * depth;
+      const a = lerp(aDark, aPaper, c) * (1 - q);
+      const passes = dark > 0.05 ? [0, 1, 2] : [2];
+      for (const pass of passes) {
+        const off = pass === 0 ? -0.9 : pass === 1 ? 0.9 : 0;
+        const col = pass === 0 ? "150,180,255" : pass === 1 ? "255,200,160" : rgb.join(",");
+        const pa = pass === 2 ? a : a * 0.35 * dark;
+        ctx.beginPath();
+        ctx.moveTo(pts[0], pts[1] + off);
+        for (let z = 2; z < pts.length; z += 2) ctx.lineTo(pts[z], pts[z + 1] + off);
+        if (c >= 0.98) ctx.strokeStyle = `rgba(${col},${pa})`;
+        else {
+          const g = ctx.createLinearGradient(pts[0], pts[1], pts[pts.length - 2], pts[pts.length - 1]);
+          g.addColorStop(0, `rgba(${col},${pa * c})`);
+          g.addColorStop(clamp(0.18 / Math.max(reveal, 0.2)), `rgba(${col},${pa})`);
+          const at0 = clamp(hs / Math.max(reveal, 0.01));
+          if (hs > 0.02 && hs < reveal - 0.02 && dark > 0.05) {
+            const boost = Math.min(1, pa * (pass === 2 ? 3.2 : 2) * dark + pa * c);
+            g.addColorStop(clamp(at0 - 0.07), `rgba(${col},${pa})`);
+            g.addColorStop(at0, `rgba(${col},${boost})`);
+            g.addColorStop(clamp(at0 + 0.07), `rgba(${col},${pa})`);
+          }
+          g.addColorStop(1, `rgba(${col},${reveal < 1 ? Math.min(1, pa * (1 + 1.4 * depth)) : lerp(pa * 0.4, pa, c)})`);
+          ctx.strokeStyle = g;
+        }
+        ctx.lineWidth = lerp(b.w, 1, c) * (pass === 2 ? 1 : 0.8);
+        ctx.stroke();
+      }
+    }
+    if (dark > 0.05) {
+      ctx.globalCompositeOperation = "lighter";
+      if (reveal < 1) { const p = ribbonPoint(b, (b.n - 1) / 2, reveal, W, H, tA, cy); flare(ctx, p[0], p[1], dark, 66); }
+      if (!RM) for (let g = 0; g < 3; g++) {
+        const gs = hs + (hash(g + b.n) - 0.5) * 0.12;
+        if (gs <= 0.03 || gs >= reveal) continue;
+        const i = Math.floor(b.n * (0.3 + 0.4 * hash(g * 3 + b.n)));
+        const p = ribbonPoint(b, i, gs, W, H, tA, cy);
+        const tw = 0.5 + 0.5 * Math.sin(tA * 5 + g * 2.1);
+        flare(ctx, p[0], p[1], (0.3 + 0.6 * tw) * dark * seg(m ? -m.p : 0, -0.1, 0), 14 + 12 * hash(g + 50));
+      }
+    }
+  });
+  ctx.globalCompositeOperation = "source-over";
+}
+
+// ---------- Figure 1 painter ----------
+const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif';
+function drawFigure(ctx, rect, P, A, q, fs) {
+  ctx.save();
+  if (A > 0) {
+    ctx.globalAlpha = A;
+    ctx.fillStyle = "#1d1d1f";
+    ctx.fillRect(P.x0, rect.sy + rect.sh * 0.06, 28 * fs, 3.2 * fs);
+    ctx.font = `600 ${18.5 * fs}px ${FONT}`; ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    ctx.fillText("Grouped means ± SEM", P.x0, rect.sy + rect.sh * 0.06 + 32 * fs);
+    ctx.font = `600 ${12.5 * fs}px ${FONT}`;
+    ctx.fillText("Accuracy", rect.sx + rect.sw * 0.03, P.y0 - 15 * fs);
+    ctx.font = `${12.5 * fs}px ${FONT}`; ctx.fillStyle = "#555b63"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (const v of [0.5, 0.6, 0.7, 0.8, 0.9]) {
+      const y = Math.round(P.Y(v)) + 0.5;
+      ctx.strokeStyle = "#e6e8ec"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(P.x0, y); ctx.lineTo(P.x1, y); ctx.stroke();
+      ctx.fillText(String(v), P.x0 - 9 * fs, y);
+    }
+    const yb = Math.round(P.y1) + 0.5;
+    ctx.strokeStyle = "#8e949c"; ctx.beginPath(); ctx.moveTo(P.x0, yb); ctx.lineTo(P.x1, yb); ctx.stroke();
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let e = 0; e <= 10; e += 2) ctx.fillText(String(e), P.X(e), yb + 8 * fs);
+    ctx.font = `600 ${12.5 * fs}px ${FONT}`; ctx.fillStyle = "#1d1d1f";
+    ctx.fillText("Epoch", (P.x0 + P.x1) / 2, yb + 29 * fs);
+  }
+  if (q > 0) {
+    ctx.globalAlpha = 1;
+    for (const s of SERIES) {
+      ctx.beginPath();
+      for (let e = 0; e <= LAST + 1e-6; e += 0.1) ctx.lineTo(P.X(e), P.Y(at(s.mean, e) + at(s.sem, e)));
+      for (let e = LAST; e >= -1e-6; e -= 0.1) ctx.lineTo(P.X(e), P.Y(at(s.mean, e) - at(s.sem, e)));
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${s.rgb.join(",")},${0.25 * q})`; ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+function drawMeans(ctx, P, A, q, fs) {
+  if (q <= 0) return;
+  ctx.save();
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  for (const s of SERIES) {
+    ctx.beginPath();
+    for (let e = 0; e <= LAST + 1e-6; e += 0.1) ctx.lineTo(P.X(e), P.Y(at(s.mean, e)));
+    ctx.strokeStyle = `rgba(${s.rgb.join(",")},${q})`; ctx.lineWidth = 2.6 * fs; ctx.stroke();
+  }
+  const ends = SERIES.map((s) => ({ s, y: P.Y(s.mean[LAST]), ly: P.Y(s.mean[LAST]) })).sort((a, b) => a.y - b.y);
+  for (let i = 1; i < ends.length; i++) if (ends[i].ly - ends[i - 1].ly < 16 * fs) ends[i].ly = ends[i - 1].ly + 16 * fs;
+  for (const d of ends) {
+    const x = P.X(LAST);
+    ctx.globalAlpha = q;
+    ctx.beginPath(); ctx.arc(x, d.y, 3.8 * fs, 0, TAU);
+    ctx.fillStyle = `rgb(${d.s.rgb.join(",")})`; ctx.fill();
+    ctx.lineWidth = 1.6 * fs; ctx.strokeStyle = "#fff"; ctx.stroke();
+    ctx.globalAlpha = A;
+    if (Math.abs(d.ly - d.y) > 2) { ctx.strokeStyle = "#b9bec6"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 5 * fs, d.y); ctx.lineTo(x + 10 * fs, d.ly); ctx.stroke(); }
+    ctx.textBaseline = "middle"; ctx.textAlign = "left";
+    ctx.font = `600 ${13 * fs}px ${FONT}`; ctx.fillStyle = `rgb(${d.s.rgb.join(",")})`;
+    ctx.fillText(d.s.name, x + 12 * fs, d.ly);
+    const w = ctx.measureText(d.s.name).width;
+    ctx.font = `${13 * fs}px ${FONT}`; ctx.fillStyle = "#3d434b";
+    ctx.fillText(d.s.mean[LAST].toFixed(3), x + 12 * fs + w + 6 * fs, d.ly);
+  }
+  ctx.restore();
+}
+
+function plotOfRect(rect, mobile) {
+  const x0 = rect.sx + rect.sw * (mobile ? 0.115 : 0.095), x1 = rect.sx + rect.sw * (mobile ? 0.64 : 0.775);
+  const y0 = rect.sy + rect.sh * 0.23, y1 = rect.sy + rect.sh * 0.82;
+  return { x0, x1, y0, y1, X: (e) => lerp(x0, x1, e / LAST), Y: (v) => lerp(y1, y0, (v - Y0) / (Y1 - Y0)) };
+}
+
+const stageEl = $("#top"), cv = $("#stage-canvas"), ctx = cv.getContext("2d");
+const rmCv = $("#rm-fig-canvas"), rmCtx = rmCv.getContext("2d");
+const paperEl = $("#paper"), sheetEl = $("#sheet"), heroEl = $("#hero"), hintEl = $("#hint"), copyEl = $("#copy1"), nav = $("#nav");
+const workspaceEl = $("#workspace"), deviceShell = $("#deviceShell");
+const traceEl = $("#trace"), traceFill = $("#traceFill"), traceItems = [...document.querySelectorAll("#traceList li")];
+const dz = $("#diagrams"), dzoom = $("#dzoom"), zoomv = $("#zoomv");
+const ctaEl = $("#download"), ccv = $("#cta-canvas"), cctx = ccv.getContext("2d");
+
+let W = 0, H = 0, dpr = 1, L = null;
+let stageTop = 0, stageLen = 1, wsTop = 0, wsH = 1, dTop = 0, dLen = 1, tTop = 0, tH = 1, ctaTop = 0, ctaH = 1;
+
+function layout() {
+  if (W >= 980) {
+    const maxTotal = Math.min(1380, W - Math.max(80, W * 0.08));
+    const gap = Math.min(64, maxTotal * 0.045);
+    const copyW = clamp(maxTotal * 0.34, 340, 460);
+    let sw = Math.min(920, maxTotal - copyW - gap), sh = sw * 0.63;
+    const maxSh = Math.max(420, H - 170);
+    if (sh > maxSh) { sh = maxSh; sw = sh / 0.63; }
+    const total = sw + gap + copyW, sx = (W - total) / 2, sy = Math.max(82, (H - sh) / 2);
+    return { sx, sy, sw, sh, copyX: sx + sw + gap, copyY: sy + Math.max(0, (sh - 340) * 0.45), copyW, mobile: false };
+  }
+  const sw = W - 32, sh = Math.min(sw * 0.66, H * 0.38), sx = 16, sy = 76;
+  return { sx, sy, sw, sh, copyX: 20, copyY: sy + sh + 24, copyW: W - 40, mobile: true };
+}
+
+function drawRmFigure() {
+  rmCv.hidden = !RM;
+  if (!RM) return;
+  const bw = Math.max(300, Math.round(sheetEl.clientWidth - 24));
+  const bh = Math.round(bw * 0.625);
+  rmCv.width = Math.round(bw * dpr); rmCv.height = Math.round(bh * dpr);
+  rmCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  rmCtx.clearRect(0, 0, bw, bh);
+  const rect = { sx: 0, sy: 0, sw: bw, sh: bh };
+  const P = plotOfRect(rect, bw < 520);
+  const fs = clamp(bw / 820, 0.66, 1.05);
+  drawFigure(rmCtx, rect, P, 1, 1, fs);
+  drawMeans(rmCtx, P, 1, 1, fs);
+}
+
+function measure() {
+  W = innerWidth; H = innerHeight;
+  dpr = Math.min(2, devicePixelRatio || 1);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  L = layout();
+  if (!RM) {
+    Object.assign(sheetEl.style, { left: L.sx + "px", top: L.sy + "px", width: L.sw + "px", height: L.sh + "px" });
+    Object.assign(copyEl.style, { left: L.copyX + "px", top: L.copyY + "px", width: L.copyW + "px" });
+  }
+  const r = stageEl.getBoundingClientRect();
+  stageTop = r.top + scrollY; stageLen = Math.max(1, r.height - H);
+  const w = workspaceEl.getBoundingClientRect();
+  wsTop = w.top + scrollY; wsH = w.height;
+  const d = dz.getBoundingClientRect();
+  dTop = d.top + scrollY; dLen = Math.max(1, d.height - H);
+  const t = traceEl.getBoundingClientRect();
+  tTop = t.top + scrollY; tH = t.height;
+  ctaTop = ctaEl.getBoundingClientRect().top + scrollY; ctaH = ctaEl.offsetHeight;
+  ccv.width = Math.round(W * dpr); ccv.height = Math.round(ctaH * dpr);
+  drawRmFigure();
+  dirty = true;
+  wake();
+}
+
+function drawStage(p, tA, tI) {
+  if (RM) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const P = plotOfRect(L, L.mobile);
+  const c = seg(p, 0.16, 0.44), q = easeInOut(seg(p, 0.48, 0.66)), A = easeOut(seg(p, 0.46, 0.64));
+  const fs = clamp(L.sw / 820, 0.64, 1.08);
+  drawFigure(ctx, L, P, A, q, fs);
+  drawStrands(ctx, W, H, L.mobile ? H * 0.22 : H * 0.28, tA, tI, { p, c, q, X: P.X, Y: P.Y });
+  drawMeans(ctx, P, A, q, fs);
+}
+
+function applyStageDom(p) {
+  if (RM) return;
+  const out = seg(p, 0.02, 0.14);
+  heroEl.style.opacity = 1 - out;
+  heroEl.style.transform = `translateY(${-34 * easeOut(out)}px)`;
+  heroEl.style.pointerEvents = out > 0.5 ? "none" : "";
+  hintEl.style.opacity = 1 - seg(p, 0.01, 0.06);
+  paperEl.style.opacity = easeInOut(seg(p, 0.18, 0.36));
+  sheetEl.style.opacity = easeOut(seg(p, 0.28, 0.46));
+  const cp = easeOut(seg(p, 0.56, 0.72));
+  copyEl.style.opacity = cp;
+  copyEl.style.transform = `translateY(${16 * (1 - cp)}px)`;
+}
+
+// ---------- Workspace switcher ----------
+const segTabs = [...document.querySelectorAll('.seg [role="tab"]')];
+const shotImgs = [...document.querySelectorAll('[data-shot-img]')];
+function selectShot(key) {
+  segTabs.forEach(btn => btn.setAttribute("aria-selected", String(btn.dataset.shot === key)));
+  shotImgs.forEach(img => img.classList.toggle("active", img.dataset.shotImg === key));
+}
+segTabs.forEach((btn, idx) => {
+  btn.addEventListener("click", () => selectShot(btn.dataset.shot));
+  btn.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const next = segTabs[(idx + (e.key === "ArrowRight" ? 1 : -1) + segTabs.length) % segTabs.length];
+      next.focus();
+      selectShot(next.dataset.shot);
+    }
+  });
+});
+
+new IntersectionObserver((es, ob) => {
+  if (es.some(e => e.isIntersecting)) { deviceShell.classList.add("in"); ob.disconnect(); }
+}, { threshold: 0.14 }).observe(deviceShell);
+
+// ---------- Interactive Chart Preset Studio ----------
+const PRESET_META = {
+  journal: { colors: { linear: "#2f5fa8", mlp: "#d9622b", transformer: "#a63f74" }, widths: { linear: 2.3, mlp: 2.3, transformer: 2.3 }, grid: "#eceef1", direct: true, rule: true, legend: false },
+  emphasis: { colors: { linear: "#c4c8d0", mlp: "#d9622b", transformer: "#b2b7c1" }, widths: { linear: 1.6, mlp: 3.1, transformer: 1.6 }, grid: "#e3e6eb", direct: true, rule: true, legend: false },
+  clean: { colors: { linear: "#2f5fa8", mlp: "#d9622b", transformer: "#5a4fa6" }, widths: { linear: 2.0, mlp: 2.0, transformer: 2.0 }, grid: "#f0f1f4", direct: false, rule: false, legend: true },
+};
+const presetSvg = $("#presetSvg");
+const presetTabs = [...document.querySelectorAll('.preset-tabs [role="tab"]')];
+function renderPreset(key) {
+  const cfg = PRESET_META[key] || PRESET_META.journal;
+  presetTabs.forEach(b => b.setAttribute("aria-selected", String(b.dataset.preset === key)));
+  const x0 = 40, x1 = cfg.direct ? 350 : 438, y0 = 46, y1 = 192;
+  const X = (e) => x0 + (x1 - x0) * e / LAST, Y = (v) => y1 - (y1 - y0) * (v - Y0) / (Y1 - Y0);
+  const path = (s) => { let d = ""; for (let e = 0; e <= LAST + 1e-6; e += 0.35) d += (d ? "L" : "M") + X(e).toFixed(1) + " " + Y(at(s.mean, e)).toFixed(1); return d; };
+  let g = "";
+  if (cfg.rule) g += `<rect x="${x0}" y="10" width="22" height="2.6" fill="#1d1d1f"/>`;
+  g += `<text x="${x0}" y="29" font-size="13" font-weight="600" fill="#1d1d1f">Validation accuracy</text>`;
+  g += `<text x="10" y="42" font-size="10" font-weight="600" fill="#1d1d1f">Acc</text>`;
+  for (const v of [0.5, 0.7, 0.9]) {
+    g += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${cfg.grid}" ${key === "emphasis" ? 'stroke-dasharray="2 3"' : ""}/><text x="${x0 - 7}" y="${Y(v) + 3.5}" text-anchor="end" font-size="10" fill="#636369">${v}</text>`;
+  }
+  g += `<line x1="${x0}" x2="${x1}" y1="${y1}" y2="${y1}" stroke="#8c929c"/>`;
+  if (!cfg.rule) g += `<line x1="${x0}" x2="${x0}" y1="${y0}" y2="${y1}" stroke="#8c929c"/>`;
+  for (const e of [0, 4, 8, 10]) g += `<text x="${X(e)}" y="${y1 + 15}" text-anchor="middle" font-size="10" fill="#636369">${e}</text>`;
+  const order = key === "emphasis" ? [SERIES[0], SERIES[2], SERIES[1]] : SERIES;
+  for (const s of order) {
+    const col = cfg.colors[s.name], w = cfg.widths[s.name];
+    if (key !== "emphasis" || s.name === "mlp") {
+      let poly = "";
+      for (let e = 0; e <= LAST + 1e-6; e += 0.5) poly += `${X(e).toFixed(1)},${Y(at(s.mean, e) + at(s.sem, e)).toFixed(1)} `;
+      for (let e = LAST; e >= -1e-6; e -= 0.5) poly += `${X(e).toFixed(1)},${Y(at(s.mean, e) - at(s.sem, e)).toFixed(1)} `;
+      g += `<polygon points="${poly}" fill="${col}" fill-opacity="0.16"/>`;
+    }
+    g += `<path d="${path(s)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+  if (cfg.direct) {
+    const ends = SERIES.map(s => ({ s, y: Y(s.mean[LAST]), ly: Y(s.mean[LAST]) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ends.length; i++) if (ends[i].ly - ends[i - 1].ly < 15) ends[i].ly = ends[i - 1].ly + 15;
+    for (const d of ends) {
+      const col = cfg.colors[d.s.name], isDim = key === "emphasis" && d.s.name !== "mlp";
+      g += `<circle cx="${x1}" cy="${d.y}" r="${isDim ? 2.6 : 3.4}" fill="${col}" stroke="#fff" stroke-width="1.3"/>`;
+      g += `<text x="${x1 + 9}" y="${d.ly + 3.5}" font-size="11" font-weight="${isDim ? 400 : 600}" fill="${isDim ? '#8c929c' : col}">${d.s.name} <tspan fill="${isDim ? '#9aa0a8' : '#1d1d1f'}" font-weight="400">${d.s.mean[LAST].toFixed(3)}</tspan></text>`;
+    }
+  }
+  if (cfg.legend) {
+    g += `<rect x="${x1 - 116}" y="${y1 - 62}" width="108" height="54" rx="5" fill="#fff" stroke="#dcdfe4"/>`;
+    SERIES.forEach((s, i) => {
+      const y = y1 - 47 + i * 15;
+      g += `<line x1="${x1 - 106}" x2="${x1 - 90}" y1="${y}" y2="${y}" stroke="${cfg.colors[s.name]}" stroke-width="2"/><text x="${x1 - 84}" y="${y + 3.5}" font-size="10.5" fill="#1d1d1f">${s.name}</text>`;
+    });
+  }
+  presetSvg.innerHTML = g;
+}
+presetTabs.forEach(btn => btn.addEventListener("click", () => renderPreset(btn.dataset.preset)));
+renderPreset("journal");
+
+// ---------- Trace timeline ----------
+function applyTrace(y) {
+  const pr = RM ? 1 : seg(y + H, tTop + tH * 0.35, tTop + tH * 0.35 + H * 0.48);
+  traceFill.style.transform = `scaleX(${pr})`;
+  traceItems.forEach((li, i) => {
+    const on = RM || pr >= i / 3 - 0.04 || (W < 1100 && y + H * 0.85 > tTop + li.offsetTop);
+    li.classList.toggle("on", on);
+    if (on && !li.dataset.played) { li.dataset.played = "1"; play(li.querySelector(".vig"), 0.06); }
+  });
+}
+traceItems.forEach((li) => li.addEventListener("mouseenter", () => li.dataset.played && rerun(li.querySelector(".vig"))));
+
+// ---------- Micro-motion helpers ----------
+function play(el, base) { if (!el) return; el.style.setProperty("--base", (base || 0) + "s"); el.classList.add("go"); }
+function rerun(el) {
+  if (!el || RM) return;
+  el.style.setProperty("--base", "0s");
+  el.classList.add("reset"); el.classList.remove("go");
+  void el.getBoundingClientRect();
+  el.classList.remove("reset"); el.classList.add("go");
+}
+const typeItems = [...document.querySelectorAll(".type-list li")];
+new IntersectionObserver((es, ob) => {
+  if (!es.some((e) => e.isIntersecting)) return;
+  ob.disconnect();
+  typeItems.forEach((li, i) => play(li.querySelector(".glyph"), 0.06 * i));
+}, { threshold: 0.18 }).observe($(".type-list"));
+typeItems.forEach((li) => li.addEventListener("mouseenter", () => rerun(li.querySelector(".glyph"))));
+new IntersectionObserver((es, ob) => { if (es.some((e) => e.isIntersecting)) { ob.disconnect(); play($(".ruler"), 0.14); } }, { threshold: 0.45 }).observe($(".ruler"));
+if (RM) document.querySelectorAll(".anim").forEach((el) => el.classList.add("go"));
+
+// ---------- Diagram zoom ----------
+const FOCUS = [0.705, 0.58], ZMAX = 2.6;
+let lastZ = -1;
+function applyZoom(y) {
+  const p = RM ? 0 : seg(y, dTop, dTop + dLen);
+  const k = easeInOut(seg(p, 0.08, 0.86));
+  const z = 1 + (ZMAX - 1) * k;
+  if (Math.abs(z - lastZ) < 0.0005) return;
+  lastZ = z;
+  const box = dzoom.parentElement;
+  const bw = box.clientWidth, bh = box.clientHeight;
+  const fx = lerp(FOCUS[0], 0.5, k) * bw, fy = lerp(FOCUS[1], 0.5, k) * bh;
+  const tx = fx - z * FOCUS[0] * bw, ty = fy - z * FOCUS[1] * bh;
+  dzoom.style.transform = `translate(${tx.toFixed(2)}px,${ty.toFixed(2)}px) scale(${z.toFixed(4)})`;
+  zoomv.textContent = "×" + z.toFixed(1);
+}
+
+// ---------- Nav adaptive surface ----------
+function applyNav(y, p) {
+  const heroDark = RM ? y < ($(".stage-ink")?.offsetHeight || 500) - 40 : (y < stageTop + stageLen + H - 60 && p < 0.3);
+  const overWorkspace = y + 32 >= wsTop && y + 32 < wsTop + wsH;
+  const overCta = y + 32 >= ctaTop && y + 32 < ctaTop + ctaH + 200;
+  nav.classList.toggle("light", !heroDark && !overWorkspace && !overCta);
+  nav.classList.toggle("dark-glass", overWorkspace || (overCta && y > ctaTop + 40));
+}
+
+// ---------- Demand-driven rAF loop ----------
+let sy = scrollY, last = performance.now(), t0 = last, dirty = true, lastP = -1, rafId = 0;
+function wake() {
+  if (rafId || document.hidden) return;
+  last = performance.now();
+  rafId = requestAnimationFrame(frame);
+}
+function frame(now) {
+  rafId = 0;
+  if (document.hidden) return;
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const target = scrollY;
+  sy = RM ? target : sy + (target - sy) * (1 - Math.exp(-dt * 10));
+  const settling = Math.abs(target - sy) >= 0.2;
+  if (!settling) sy = target;
+
+  const tA = RM ? 6 : now / 1000, tI = RM ? 9 : (now - t0) / 1000;
+  const p = RM ? 0 : seg(sy, stageTop, stageTop + stageLen);
+  const stageVisible = !RM && sy < stageTop + stageLen + H;
+  const stageAnimating = stageVisible && (p < 0.62 || tI < 2.6);
+
+  if (stageVisible && (dirty || p !== lastP || stageAnimating)) {
+    drawStage(p, tA, tI);
+    applyStageDom(p);
+    lastP = p;
+  }
+  applyNav(sy, p);
+  applyTrace(sy);
+  applyZoom(sy);
+
+  const ctaVisible = sy + H > ctaTop && sy < ctaTop + ctaH;
+  if (ctaVisible && (!RM || dirty)) {
+    cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cctx.clearRect(0, 0, W, ctaH);
+    drawStrands(cctx, W, ctaH, ctaH * (W < 600 ? 0.9 : 0.8), tA + 40, 9, null);
+  }
+  dirty = false;
+  if (!RM && (settling || stageAnimating || ctaVisible)) rafId = requestAnimationFrame(frame);
+}
+
+addEventListener("scroll", wake, { passive: true });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { dirty = true; wake(); } });
+mq.addEventListener?.("change", (e) => {
+  RM = e.matches;
+  root.classList.toggle("rm", RM);
+  if (RM) {
+    document.querySelectorAll(".anim").forEach((el) => el.classList.add("go"));
+    showProposedStatic();
+  }
+  measure();
+});
+
+// ---------- Interactive Assistant Demo ----------
+const demo = $("#demo"), svg = $("#demoSvg"), typed = $("#typed");
+(function buildDemoChart() {
+  const x0 = 46, x1 = 470, y0 = 18, y1 = 214;
+  const X = (e) => x0 + (x1 - x0) * e / LAST, Y = (v) => y1 - (y1 - y0) * (v - Y0) / (Y1 - Y0);
+  const path = (s) => { let d = ""; for (let e = 0; e <= LAST + 1e-6; e += 0.25) d += (d ? "L" : "M") + X(e).toFixed(1) + " " + Y(at(s.mean, e)).toFixed(1); return d; };
+  let g = "";
+  for (const v of [0.5, 0.6, 0.7, 0.8, 0.9]) g += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eceef1"/><text x="${x0 - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  g += `<line x1="${x0}" x2="${x1}" y1="${y1 + .5}" y2="${y1 + .5}" stroke="#9aa0a8"/>`;
+  for (let e = 0; e <= 10; e += 2) g += `<text x="${X(e)}" y="${y1 + 18}" text-anchor="middle">${e}</text>`;
+  for (const s of SERIES) {
+    const col = `rgb(${s.rgb.join(",")})`;
+    if (s.name === "mlp") g += `<path class="thin" d="${path(s)}" fill="none" stroke="${col}" stroke-width="2.5"/><path class="thick" d="${path(s)}" fill="none" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`;
+    else g += `<path d="${path(s)}" fill="none" stroke="${col}" stroke-width="2.2"/>`;
+  }
+  g += `<g class="tgt"><rect x="${x1 - 126}" y="${y1 - 72}" width="118" height="62" rx="5" fill="rgba(47,95,168,.06)" stroke="#2f5fa8" stroke-dasharray="4 3"/><text x="${x1 - 8}" y="${y1 - 78}" text-anchor="end" fill="#2f5fa8">→ 右下</text></g>`;
+  g += `<g class="lg"><rect x="58" y="30" width="118" height="62" rx="5" fill="#fff" stroke="#dcdfe4"/>`;
+  SERIES.forEach((s, i) => { const y = 47 + i * 16; g += `<line x1="70" x2="88" y1="${y}" y2="${y}" stroke="rgb(${s.rgb.join(",")})" stroke-width="${s.name === "mlp" ? 2.5 : 2}"/><text x="96" y="${y + 4}" fill="#2a2f36">${s.name}</text>`; });
+  g += `</g>`;
+  svg.innerHTML = `<g font-size="11" fill="#6b7078">${g}</g>`;
+})();
+
+const PHRASE = "图例放到右下角，mlp 加粗";
+let timers = [], manualInteracted = false;
+function clearDemoTimers() { timers.forEach(clearTimeout); timers = []; }
+function setState(...cls) { demo.className = "demo " + cls.join(" "); }
+function showProposedStatic() {
+  clearDemoTimers();
+  typed.textContent = PHRASE; typed.classList.remove("ph");
+  setState("proposed", "sent");
+}
+function playDemo() {
+  clearDemoTimers();
+  if (RM) { showProposedStatic(); return; }
+  setState("typing"); typed.textContent = ""; typed.classList.remove("ph");
+  [...PHRASE].forEach((ch, i) => timers.push(setTimeout(() => { typed.textContent += ch; }, 220 + i * 75)));
+  const t1 = 220 + PHRASE.length * 75 + 320;
+  timers.push(setTimeout(() => setState("typing", "sent"), t1));
+  timers.push(setTimeout(() => setState("proposed", "sent"), t1 + 600));
+  timers.push(setTimeout(() => { if (!manualInteracted) setState("proposed", "sent", "press"); }, t1 + 2900));
+  timers.push(setTimeout(() => { if (!manualInteracted) setState("applied"); }, t1 + 3100));
+}
+
+$("#btnApply").addEventListener("click", () => { manualInteracted = true; clearDemoTimers(); setState("applied"); });
+$("#btnSkip").addEventListener("click", () => { manualInteracted = true; clearDemoTimers(); typed.textContent = "描述你想怎么改这张图"; typed.classList.add("ph"); setState(); });
+$("#btnUndo").addEventListener("click", () => { manualInteracted = true; showProposedStatic(); });
+$("#btnReplay").addEventListener("click", () => { manualInteracted = false; playDemo(); });
+
+if (RM) {
+  showProposedStatic();
+} else {
+  let demoStarted = false;
+  new IntersectionObserver((es) => {
+    if (!es.some((e) => e.isIntersecting) || demoStarted) return;
+    demoStarted = true;
+    timers.push(setTimeout(playDemo, 180));
+  }, { threshold: 0.45 }).observe(demo);
+}
+
+addEventListener("resize", measure);
+if (document.fonts) document.fonts.ready.then(measure);
+new ResizeObserver(() => measure()).observe(document.body);
+measure();
+})();
+</script>
+</body>
+</html>
